@@ -77,16 +77,27 @@ function validate (source) {
 module.exports.validate = validate
 
 /**
- * parses a raw transform
- * @param  {string} transformRaw raw value path to be parsed
- * @return {Transform}
+ * parses reducers for a transform
+ * @param  {Array} source
+ * @return {Array}
  */
-function create (source = []) {
+function createReducers (source = []) {
   validate(source)
   const tokens = parse(source)
+  const reducers = tokens.map(reducerFactory.create)
+  return reducers
+}
 
+module.exports.createReducers = createReducers
+
+/**
+ * parses a raw transform
+ * @param  {Array} source
+ * @return {Transform}
+ */
+function create (source) {
   const transformBase = new TransformExpression()
-  transformBase.reducers = tokens.map(reducerFactory.create)
+  transformBase.reducers = createReducers(source)
 
   return Object.freeze(transformBase)
 }
