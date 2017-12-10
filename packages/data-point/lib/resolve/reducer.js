@@ -5,6 +5,8 @@ const Promise = require('bluebird')
 const resolveReducerPath = require('./reducer-path')
 const resolveReducerFunction = require('./reducer-function')
 const resolveEntity = require('./reducer-entity')
+const createReducers = require('../transform-expression').createReducers
+const utils = require('../utils')
 
 /**
  *
@@ -65,6 +67,47 @@ const reduceContext = store => (accumulator, reducer) => {
 module.exports.reduceContext = reduceContext
 
 /**
+ * @param {Array<Reducer>} reducers
+ * @param {Function} resolver
+ * @returns {Promise}
+ */
+function chainReducers (reducers, resolver) {
+  if (reducers.length === 0) {
+    return Promise.resolve.bind(Promise)
+  }
+
+  let index = 0
+
+  const appendReducers = newReducers => {
+    reducers = reducers.slice(index).concat(newReducers)
+  }
+
+  const resolveTo = value => {
+    appendReducers([acc => utils.set(acc, 'value', value)])
+  }
+
+  const resolveWith = value => {
+    appendReducers(createReducers(value))
+  }
+
+  const resolveNext = promise => {
+    if (index >= reducers.length) {
+      return promise
+    }
+
+    const nextReducer = reducers[index++]
+    return promise.then(acc => resolveNext(resolver(acc, nextReducer)))
+  }
+
+  return acc => {
+    acc = utils.assign(acc, { resolveTo, resolveWith })
+    return resolveNext(Promise.resolve(acc))
+  }
+}
+
+module.exports.chainReducers = chainReducers
+
+/**
  * resolves a given transform
  *
  * @param {Object} store
@@ -78,13 +121,8 @@ function resolve (store, accumulator, transform) {
   }
 
   const reduceTransformReducer = reduceContext(store)
-  const result = Promise.reduce(
-    transform.reducers,
-    reduceTransformReducer,
-    accumulator
-  )
-
-  return result
+  const reducer = chainReducers(transform.reducers, reduceTransformReducer)
+  return reducer(accumulator)
 }
 
 module.exports.resolve = resolve
