@@ -6,7 +6,7 @@ dataPoint.addEntities({
     options: {
       qs: {
         // because the key starts with $
-        // it will be treated as a TransformExpression
+        // it will be treated as a ReducerExpression
         $search: acc => {
           return acc.value.search
         }

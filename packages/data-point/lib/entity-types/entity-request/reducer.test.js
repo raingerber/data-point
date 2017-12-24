@@ -6,8 +6,7 @@ const nock = require('nock')
 const Reducer = require('./reducer')
 
 const AccumulatorFactory = require('../../accumulator/factory')
-const ReducerFactory = require('../../reducer/factory')
-const createTransform = require('../../transform-expression/factory').create
+const createTransform = require('../../reducer-types').create
 const LocalsFactory = require('../../locals/factory')
 
 const ResolveEntity = require('../base-entity/resolve')
@@ -15,6 +14,11 @@ const ResolveEntity = require('../base-entity/resolve')
 const FixtureStore = require('../../../test/utils/fixture-store')
 
 const helpers = require('../../helpers')
+
+// TODO have this in helpers
+const ReducerFactory = transform => {
+  return createTransform(transform).reducers[0]
+}
 
 let dataPoint
 let resolveTransform
@@ -39,7 +43,7 @@ function helperMockContext (accumulatorData, reducerSource, requestName) {
     locals,
     values
   })
-  const reducer = ReducerFactory.create(createTransform, reducerSource)
+  const reducer = ReducerFactory(reducerSource)
   return ResolveEntity.createCurrentAccumulator(dataPoint, accumulator, reducer)
 }
 

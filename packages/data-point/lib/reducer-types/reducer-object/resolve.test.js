@@ -1,12 +1,15 @@
 /* eslint-env jest */
 'use strict'
 
-const AccumulatorFactory = require('../accumulator/factory')
-const reducerFactory = require('../reducer/factory')
+const AccumulatorFactory = require('../../accumulator/factory')
 const resolveObject = require('./resolve').resolve
-const createTransform = require('../transform-expression').create
-const resolveTransform = require('../transform-expression').resolve
-const FixtureStore = require('../../test/utils/fixture-store')
+const createTransform = require('../reducer-expression').create
+const resolveTransform = require('../reducer-expression').resolve
+const FixtureStore = require('../../../test/utils/fixture-store')
+
+const ReducerFactory = transform => {
+  return createTransform(transform).reducers[0]
+}
 
 let dataPoint
 
@@ -16,7 +19,7 @@ beforeAll(() => {
 
 describe('resolve#reducerObject.resolve', () => {
   it('should return the accumulator for an empty reducer object', () => {
-    const reducer = reducerFactory.create(createTransform, {})
+    const reducer = ReducerFactory({})
 
     const accumulator = AccumulatorFactory.create({
       value: {
@@ -39,7 +42,7 @@ describe('resolve#reducerObject.resolve', () => {
   })
 
   it('should resolve a reducer object', () => {
-    const reducer = reducerFactory.create(createTransform, {
+    const reducer = ReducerFactory({
       y: '$x.y',
       zPlusOne: ['$x.y.z', acc => acc.value + 1]
     })
@@ -70,7 +73,7 @@ describe('resolve#reducerObject.resolve', () => {
   })
 
   it('should resolve a reducer object', () => {
-    const reducer = reducerFactory.create(createTransform, {
+    const reducer = ReducerFactory({
       x: '$c.x',
       y: '$c.y',
       z: {
@@ -108,7 +111,7 @@ describe('resolve#reducerObject.resolve', () => {
   })
 
   it('should resolve a reducer object', () => {
-    const reducer = reducerFactory.create(createTransform, {
+    const reducer = ReducerFactory({
       x: [
         '$a',
         {

@@ -3,13 +3,12 @@
 
 const nock = require('nock')
 
-const fixtureStore = require('../../test/utils/fixture-store')
-const reducers = require('../../test/utils/reducers')
-const testData = require('../../test/data.json')
+const fixtureStore = require('../../../test/utils/fixture-store')
+const reducers = require('../../../test/utils/reducers')
+const testData = require('../../../test/data.json')
 
-const AccumulatorFactory = require('../accumulator/factory')
-const reducerFactory = require('../reducer/factory')
-const TransformExpression = require('./factory')
+const AccumulatorFactory = require('../../accumulator/factory')
+const ReducerExpression = require('./factory')
 
 const ResolveTransform = require('./resolve')
 
@@ -47,10 +46,9 @@ test('resolve#reducer.resolveReducer', () => {
     value: testData.a.b.c
   })
 
-  const reducer = reducerFactory.create(
-    TransformExpression.create,
-    reducers.addCollectionValues()
-  )
+  const reducer = ReducerExpression.create(reducers.addCollectionValues())
+    .reducers[0]
+
   return ResolveTransform.resolveReducer(store, accumulator, reducer).then(
     result => {
       expect(result.value).toEqual(6)
@@ -63,7 +61,7 @@ test('resolve#reducer.resolve - reducer empty', () => {
     value: testData.a.g
   })
 
-  const transform = TransformExpression.create('')
+  const transform = ReducerExpression.create('')
 
   return ResolveTransform.resolve(store, accumulator, transform).then(result =>
     expect(result.value).toEqual(testData.a.g)
@@ -76,7 +74,7 @@ describe('resolve#reducer.resolve - reducer transform', () => {
       value: testData
     })
 
-    const transform = TransformExpression.create('$a.g')
+    const transform = ReducerExpression.create('$a.g')
     return ResolveTransform.resolve(store, accumulator, transform).then(
       result => expect(result.value).toEqual(testData.a.g)
     )
@@ -87,7 +85,7 @@ describe('resolve#reducer.resolve - reducer transform', () => {
       value: testData
     })
 
-    const transform = TransformExpression.create('$a.g | $g1')
+    const transform = ReducerExpression.create('$a.g | $g1')
 
     return ResolveTransform.resolve(store, accumulator, transform).then(
       result => expect(result.value).toBe(1)
@@ -101,7 +99,7 @@ describe('resolve#reducer.resolve - reducer model', () => {
       value: testData
     })
 
-    const transform = TransformExpression.create('hash:asIs')
+    const transform = ReducerExpression.create('hash:asIs')
     return ResolveTransform.resolve(store, accumulator, transform).then(
       result => expect(result.value).toEqual(testData)
     )
@@ -112,7 +110,7 @@ describe('resolve#reducer.resolve - reducer model', () => {
       value: testData
     })
 
-    const transform = TransformExpression.create('hash:asIs | hash:a.1')
+    const transform = ReducerExpression.create('hash:asIs | hash:a.1')
 
     return ResolveTransform.resolve(store, accumulator, transform).then(
       result => expect(result.value).toEqual(testData.a.h)
@@ -132,7 +130,7 @@ describe('resolve#reducer.resolve - reducer request', () => {
       value: testData.foo
     })
 
-    const transform = TransformExpression.create('request:a1')
+    const transform = ReducerExpression.create('request:a1')
     return ResolveTransform.resolve(store, accumulator, transform).then(
       result =>
         expect(result.value).toEqual({
@@ -158,7 +156,7 @@ describe('resolve#reducer.resolve - reducer request', () => {
       value: testData
     })
 
-    const transform = TransformExpression.create('request:a1 | request:a3')
+    const transform = ReducerExpression.create('request:a1 | request:a3')
 
     return ResolveTransform.resolve(store, accumulator, transform).then(
       result =>

@@ -1,10 +1,9 @@
 /* eslint-env jest */
 'use strict'
 
-const AccumulatorFactory = require('../accumulator/factory')
-const reducerFactory = require('../reducer/factory')
+const AccumulatorFactory = require('../../accumulator/factory')
+const createTransform = require('../reducer-expression').create
 const reducerPath = require('../reducer-path')
-const createTransform = require('../transform-expression').create
 
 describe('resolve#transform.resolve', () => {
   function resolve (value, rawReducer) {
@@ -18,7 +17,7 @@ describe('resolve#transform.resolve', () => {
 
     return reducerPath.resolve(
       accumulator,
-      reducerFactory.create(createTransform, rawReducer)
+      createTransform(rawReducer).reducers[0]
     )
   }
 

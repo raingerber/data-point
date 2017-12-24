@@ -22,7 +22,7 @@ npm install --save data-point
 - [DataPoint.create](#api-data-point-create)
 - [Transforms](#transforms)
   - [dataPoint.transform](#api-data-point-transform)
-  - [TransformExpression](#transform-expression)
+  - [ReducerExpression](#reducer-expression)
 - [Reducers](#reducers)
   - [Accumulator](#accumulator)
   - [PathReducer](#path-reducer)
@@ -219,15 +219,15 @@ const dataPoint = DataPoint
 
 ### <a name="api-data-point-transform">dataPoint.transform()</a>
 
-Execute a [TransformExpression](#transform-expression) against a given _input_ value.
+Execute a [ReducerExpression](#reducer-expression) against a given _input_ value.
 
 **SYNOPSIS**
 
 ```js
 // promise
-dataPoint.transform(transformExpression, value, options)
+dataPoint.transform(ReducerExpression, value, options)
 // nodejs callback function
-dataPoint.transform(transformExpression, value, options, done) 
+dataPoint.transform(ReducerExpression, value, options, done) 
 ```
 
 This method will return a **Promise** if `done` is omitted.
@@ -236,7 +236,7 @@ This method will return a **Promise** if `done` is omitted.
 
 | Argument | Type | Description |
 |:---|:---|:---|
-| *transformExpression* | [TransformExpression](#transform-expression) | Valid Transform Expression |
+| *ReducerExpression* | [ReducerExpression](#reducer-expression) | Valid Transform Expression |
 | *value* | `Object` | Value that you want to transform. If **none**, pass `null` or empty object `{}`. |
 | *options* | [TransformOptions](#transform-options) | Options within the scope of the current transformation |
 | *done* | `function` _(optional)_ | Error-first callback [Node.js style callback](https://nodejs.org/api/errors.html#errors_node_js_style_callbacks) that has the arguments `(error, result)`, where `result` contains the final resolved [Accumulator](#accumulator). The actual transformation result will be inside the `result.value` property. |
@@ -252,15 +252,15 @@ The following table describes the properties of the `options` argument.
 | *locals* | `Object` | Hash with values you want exposed to every reducer. See [example](#acc-locals-example). |
 | *trace* | `boolean` | Set this to `true` to trace the entities and the time each one is taking to execute. **Use this option for debugging.** |
 
-### <a name="transform-expression">Transform Expression</a>
+### <a name="reducer-expression">Transform Expression</a>
 
 **Description**
 
-A **TransformExpression** object consists of a chain containing one or more [Reducers](#reducers), where the result (transformed value) of one reducer gets passed as input value to the next reducer in the chain. All reducers are executed serially and **asynchronously**.
+A **ReducerExpression** object consists of a chain containing one or more [Reducers](#reducers), where the result (transformed value) of one reducer gets passed as input value to the next reducer in the chain. All reducers are executed serially and **asynchronously**.
 
 Transform Expressions can be represented in different ways: 
 
-| TransformExpression | Description |
+| ReducerExpression | Description |
 |:---|:---|
 | `'$.'` | Get **root** value of *acc.value* |
 | `'$name'` | Get property `name` from *acc.value* |
@@ -272,7 +272,7 @@ Transform Expressions can be represented in different ways:
 
 ## <a name="reducers">Reducer</a>
 
-Reducers are used to build a [TransformExpression](#transform-expression) object.
+Reducers are used to build a [ReducerExpression](#reducer-expression) object.
 
 Reducers transform values, and are executed both **serially** &amp; **asynchronously**.
 
@@ -566,7 +566,7 @@ Example at: [examples/reducer-function-error.js](examples/reducer-function-error
 
 ### <a name="object-reducer">ObjectReducer</a>
 
-ObjectReducers are plain objects where the values are TransformExpressions. They're used to aggregate data or transform objects.
+ObjectReducers are plain objects where the values are ReducerExpressions. They're used to aggregate data or transform objects.
 
 **Transforming an object:**
 
@@ -624,7 +624,7 @@ dataPoint.transform(objectReducer, planetIds)
 
 ```
 
-Each of the TransformExpressions, including the nested ones, are resolved against the same accumulator value. This means that input objects can be rearranged at any level:
+Each of the ReducerExpressions, including the nested ones, are resolved against the same accumulator value. This means that input objects can be rearranged at any level:
 
 ```js
 const inputData = {
@@ -661,7 +661,7 @@ const objectReducer = {
 dataPoint.transform(objectReducer, inputData)
 ```
 
-Each of the TransformExpressions might also contain more ObjectReducers (which might contain TransformExpressions, and so on). Notice how the output changes based on the position of the ObjectReducers in the two expressions:
+Each of the ReducerExpressions might also contain more ObjectReducers (which might contain ReducerExpressions, and so on). Notice how the output changes based on the position of the ObjectReducers in the two expressions:
 
 ```js
 const inputData = {
@@ -958,14 +958,14 @@ All entities share a common API (except for [Transform](#transform-entity)).
 ```js
 {
   // executes --before-- everything else
-  before: TransformExpression,
+  before: ReducerExpression,
   
   // executes --after-- everything else
-  after: TransformExpression,
+  after: ReducerExpression,
   
   // executes in case there is an error at any
   // point of the entire transformation
-  error: TransformExpression,
+  error: ReducerExpression,
   
   // this object allows you to store and eventually
   // access it at any given time on any reducer
@@ -977,16 +977,16 @@ All entities share a common API (except for [Transform](#transform-entity)).
 
 | Key | Type | Description |
 |:---|:---|:---|
-| *before*  | [TransformExpression](#transform-expression) | Transform to be resolved **before** the entity resolution |
-| *after*   | [TransformExpression](#transform-expression) | Transform to be resolved **after** the entity resolution |
-| *error*   | [TransformExpression](#transform-expression) | Transform to be resolved in case of an error |
+| *before*  | [ReducerExpression](#reducer-expression) | Transform to be resolved **before** the entity resolution |
+| *after*   | [ReducerExpression](#reducer-expression) | Transform to be resolved **after** the entity resolution |
+| *error*   | [ReducerExpression](#reducer-expression) | Transform to be resolved in case of an error |
 | *params*  | `Object` | User defined Hash that will be passed to every transform within the context of the transform's execution |
 
 ##### <a name="transform-entity">Transform Entity</a>
 
 A Transform entity is meant to be used as a 'snippet' entity that you can re-use in other entities. It does not expose the common before/after/error/params API that other entities have.
 
-The value of a Transform entity is a [TransformExpression](#transform-expression).
+The value of a Transform entity is a [ReducerExpression](#reducer-expression).
 
 IMPORTANT: Transform Entities **do not support** (extension)[#extending-entities].
 
@@ -994,7 +994,7 @@ IMPORTANT: Transform Entities **do not support** (extension)[#extending-entities
 
 ```js
 dataPoint.addEntities({
-  'transform:<entityId>': TransformExpression
+  'transform:<entityId>': ReducerExpression
 })
 ```
 
@@ -1037,10 +1037,10 @@ An Entry entity is where your data manipulation starts. As a best practice, use 
 ```js
 dataPoint.addEntities({
   'entry:<entityId>': {
-    before: TransformExpression,
-    value: TransformExpression,
-    after: TransformExpression,
-    error: TransformExpression,
+    before: ReducerExpression,
+    value: ReducerExpression,
+    after: ReducerExpression,
+    error: ReducerExpression,
     params: Object
   }
 })
@@ -1050,10 +1050,10 @@ dataPoint.addEntities({
 
 | Key | Type | Description |
 |:---|:---|:---|
-| *before*  | [TransformExpression](#transform-expression) | Transform to be resolved **before** the entity resolution |
-| *value* | [TransformExpression](#transform-expression) | The value to which the Entity resolves |
-| *after*   | [TransformExpression](#transform-expression) | Transform to be resolved **after** the entity resolution |
-| *error*   | [TransformExpression](#transform-expression) | Transform to be resolved in case of an error |
+| *before*  | [ReducerExpression](#reducer-expression) | Transform to be resolved **before** the entity resolution |
+| *value* | [ReducerExpression](#reducer-expression) | The value to which the Entity resolves |
+| *after*   | [ReducerExpression](#reducer-expression) | Transform to be resolved **after** the entity resolution |
+| *error*   | [ReducerExpression](#reducer-expression) | Transform to be resolved in case of an error |
 | *params*    | `Object` | User defined Hash that will be passed to every transform within the context of this transform's execution |
 
 ##### <a name="entry-value">Entry.value</a>
@@ -1409,12 +1409,12 @@ Requests a remote source, using [request](https://github.com/request/request) be
 ```js
 dataPoint.addEntities({
   'request:<entityId>': {
-    before: TransformExpression,
+    before: ReducerExpression,
     url: StringTemplate,
     options: TransformObject,
-    beforeRequest: TransformExpression,
-    after: TransformExpression,
-    error: TransformExpression,
+    beforeRequest: ReducerExpression,
+    after: ReducerExpression,
+    error: ReducerExpression,
     params: Object
   }
 })
@@ -1424,12 +1424,12 @@ dataPoint.addEntities({
 
 | Key | Type | Description |
 |:---|:---|:---|
-| *before*  | [TransformExpression](#transform-expression) | Transform to be resolved **before** the entity resolution |
+| *before*  | [ReducerExpression](#reducer-expression) | Transform to be resolved **before** the entity resolution |
 | *url*   | [StringTemplate](#string-template) | String value to resolve the request's url |
 | *options* | [TransformObject](#transform-object) | Request's options. These map directly to [request.js](https://github.com/request/request) options
-| *beforeRequest* | [TransformExpression](#transform-expression) | `acc.value` at this point will be the request options object being passed to the final request. You may do any modifications here, and then pass to the next reducer |
-| *after*   | [TransformExpression](#transform-expression) | Transform to be resolved **after** the entity resolution |
-| *error*   | [TransformExpression](#transform-expression) | Transform to be resolved in case of an error |
+| *beforeRequest* | [ReducerExpression](#reducer-expression) | `acc.value` at this point will be the request options object being passed to the final request. You may do any modifications here, and then pass to the next reducer |
+| *after*   | [ReducerExpression](#reducer-expression) | Transform to be resolved **after** the entity resolution |
+| *error*   | [ReducerExpression](#reducer-expression) | Transform to be resolved in case of an error |
 | *params*    | `Object` | User defined Hash that will be passed to every transform within the context of the transform's execution |
 
 ##### <a name="request-url">Request.url</a>
@@ -1541,9 +1541,9 @@ Example at: [examples/entity-request-string-template.js](examples/entity-request
 
 ##### <a name="transform-object">TransformObject</a>
 
-A TransformObject is a Object where any property (at any level), that its key starts with the character `$` is treated as a [TransformExpression](#transform-expression). Properties that do not start with a `$` character will be left untouched.
+A TransformObject is a Object where any property (at any level), that its key starts with the character `$` is treated as a [ReducerExpression](#reducer-expression). Properties that do not start with a `$` character will be left untouched.
 
-When a TransformObject is to be resolved, all TransformExpressions are resolved in parallel, and their values will be injected in place of the TransformExpression. Also the `$` character will be removed from the resolved property.
+When a TransformObject is to be resolved, all ReducerExpressions are resolved in parallel, and their values will be injected in place of the ReducerExpression. Also the `$` character will be removed from the resolved property.
 
 ```js
 dataPoint.addEntities({
@@ -1555,7 +1555,7 @@ dataPoint.addEntities({
       qs: {
         // because the key starts
         // with $ it will be treated
-        // as a TransformExpression
+        // as a ReducerExpression
         $search: '$query'
       }
     }
@@ -1653,9 +1653,9 @@ If you want to have more control over the order of execution, you may use the [c
 ```js
 dataPoint.addEntities({
   'hash:<entityId>': {
-    before: TransformExpression,
+    before: ReducerExpression,
 
-    value: TransformExpression,
+    value: ReducerExpression,
     mapKeys: TransformMap,
     omitKeys: String[],
     pickKeys: String[],
@@ -1663,8 +1663,8 @@ dataPoint.addEntities({
     addValues: Object,
     compose: ComposeReducer[],
     
-    after: TransformExpression,
-    error: TransformExpression,
+    after: ReducerExpression,
+    error: ReducerExpression,
     params: Object,
   }
 })
@@ -1674,16 +1674,16 @@ dataPoint.addEntities({
 
 | Key | Type | Description |
 |:---|:---|:---|
-| *value* | [TransformExpression](#transform-expression) | The value to which the Entity resolves |
+| *value* | [ReducerExpression](#reducer-expression) | The value to which the Entity resolves |
 | *mapKeys* | [TransformMap](#transform-map) | Map to a new set of key/values. Each value accepts a transform |
 | *omitKeys* | `String[]` | Omits keys from acc.value (Array of strings) |
 | *pickKeys* | `String[]` | Picks keys from acc.value (Array of strings) |
 | *addKeys* | [TransformMap](#transform-map) | Add/Override key/values. Each value accepts a transform |
 | *addValues* | `Object` | Add/Override hard-coded key/values |
 | *compose* | [ComposeReducer](#compose-reducer)`[]` | Modify the value of accumulator through an Array of `ComposeReducer` objects. Think of it as a [Compose/Flow Operation](https://en.wikipedia.org/wiki/Function_composition_(computer_science)), where the result of one operation gets passed to the next one|
-| *before*  | [TransformExpression](#transform-expression) | Transform to be resolved **before** the entity resolution |
-| *after*   | [TransformExpression](#transform-expression) | Transform to be resolved **after** the entity resolution |
-| *error*   | [TransformExpression](#transform-expression) | Transform to be resolved in case of an error |
+| *before*  | [ReducerExpression](#reducer-expression) | Transform to be resolved **before** the entity resolution |
+| *after*   | [ReducerExpression](#reducer-expression) | Transform to be resolved **after** the entity resolution |
+| *error*   | [ReducerExpression](#reducer-expression) | Transform to be resolved in case of an error |
 | *params*    | `Object` | User-defined Hash that will be passed to every transform within the context of the transform's execution |
 
 ##### <a name="hash-value">Hash.value</a>
@@ -1720,7 +1720,7 @@ Example at: [examples/entity-hash-context.js](examples/entity-hash-context.js)
 
 ##### <a name="hash-mapKeys">Hash.mapKeys</a>
 
-Maps to a new set of key/value pairs through a [TransformMap](#transform-map), where each value accepts a [TransformExpression](#transform-expression).
+Maps to a new set of key/value pairs through a [TransformMap](#transform-map), where each value accepts a [ReducerExpression](#reducer-expression).
 
 Going back to our GitHub API examples, let's map some keys from the result of a request:
 
@@ -1759,14 +1759,14 @@ Example at: [examples/entity-hash-mapKeys.js](examples/entity-hash-mapKeys.js)
 
 ###### <a name="transform-map">TransformMap</a>
 
-This structure allows you to map key/value pairs, where each value is of type [TransformExpression](#transform-expression).
+This structure allows you to map key/value pairs, where each value is of type [ReducerExpression](#reducer-expression).
 
 **SYNOPSIS**
 
 ```js
 {
-  key1: TransformExpression,
-  key2: TransformExpression,
+  key1: ReducerExpression,
+  key2: ReducerExpression,
   ...
 }
 ```
@@ -2044,16 +2044,16 @@ Collection entities expose a set of reducers that you may apply to them: [map](#
 ```js
 dataPoint.addEntities({
   'collection:<entityId>': {
-    before: TransformExpression,
+    before: ReducerExpression,
 
-    value: TransformExpression,
-    filter: TransformExpression,
-    map: TransformExpression,
-    find: TransformExpression,
+    value: ReducerExpression,
+    filter: ReducerExpression,
+    map: ReducerExpression,
+    find: ReducerExpression,
     compose: ComposeReducer[],
     
-    after: TransformExpression,
-    error: TransformExpression,
+    after: ReducerExpression,
+    error: ReducerExpression,
     params: Object,
   }
 })
@@ -2063,14 +2063,14 @@ dataPoint.addEntities({
 
 | Key | Type | Description |
 |:---|:---|:---|
-| *before*  | [TransformExpression](#transform-expression) | Transform to be resolved **before** the entity resolution |
-| *value* | [TransformExpression](#transform-expression) | The value to which the Entity resolves |
-| *map* | [TransformExpression](#transform-expression) | Maps the items of an array. **NOTE**: this operation happens asynchronously, so be careful to use it only when async operation is needed; otherwise, use a synchronous equivalent (native array filter or third party solution) |
-| *find* | [TransformExpression](#transform-expression) | Find an item in the array. **NOTE**: this operation happens asynchronously, so be careful to use it only when async operation is needed; otherwise, use a synchronous equivalent (native array filter or third party solution) |
-| *filter* | [TransformExpression](#transform-expression) | Filters the items of an array. **NOTE**: this operation happens asynchronously, so be careful to use it only when async operation is needed; otherwise, use a synchronous equivalent (native array filter or third party solution) |
+| *before*  | [ReducerExpression](#reducer-expression) | Transform to be resolved **before** the entity resolution |
+| *value* | [ReducerExpression](#reducer-expression) | The value to which the Entity resolves |
+| *map* | [ReducerExpression](#reducer-expression) | Maps the items of an array. **NOTE**: this operation happens asynchronously, so be careful to use it only when async operation is needed; otherwise, use a synchronous equivalent (native array filter or third party solution) |
+| *find* | [ReducerExpression](#reducer-expression) | Find an item in the array. **NOTE**: this operation happens asynchronously, so be careful to use it only when async operation is needed; otherwise, use a synchronous equivalent (native array filter or third party solution) |
+| *filter* | [ReducerExpression](#reducer-expression) | Filters the items of an array. **NOTE**: this operation happens asynchronously, so be careful to use it only when async operation is needed; otherwise, use a synchronous equivalent (native array filter or third party solution) |
 | *compose* | [ComposeReducer](#compose-reducer)`[]` | Modify the value of accumulator through an Array of `ComposeReducer` objects. Think of it as a [Compose/Flow Operation](https://en.wikipedia.org/wiki/Function_composition_(computer_science)), where the result of one object gets passed to the next one |
-| *after* | [TransformExpression](#transform-expression) | Transform to be resolved **after** the entity resolution |
-| *error* | [TransformExpression](#transform-expression) | Transform to be resolved in case of an error |
+| *after* | [ReducerExpression](#reducer-expression) | Transform to be resolved **after** the entity resolution |
+| *error* | [ReducerExpression](#reducer-expression) | Transform to be resolved in case of an error |
 | *params* | `Object` | User-defined Hash that will be passed to every transform within the context of the transform's execution |
 
 <a name="collection-reducers-order">The order of execution of is:</a>
@@ -2257,7 +2257,7 @@ dataPoint
   })
 ```
 
-Because `filter` accepts a transformExpression, you could use it to check whether a property evaluates to a [Truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) value. 
+Because `filter` accepts a ReducerExpression, you could use it to check whether a property evaluates to a [Truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) value.
 
 The following example gets all the repos that are actually forks. In this case, because the `fork` property is a boolean, then you can do the following:
 
@@ -2459,13 +2459,13 @@ The Flow Control entity allows you to control the flow of your transformations.
 dataPoint.addEntities({
   'control:<entityId>': {
     select: [
-      { case: TransformExpression, do: Transform },
+      { case: ReducerExpression, do: Transform },
       ...
       { default: Transform }
     ],
-    before: TransformExpression,
-    after: TransformExpression,
-    error: TransformExpression,
+    before: ReducerExpression,
+    after: ReducerExpression,
+    error: ReducerExpression,
     params: Object,
   }
 })
@@ -2477,9 +2477,9 @@ dataPoint.addEntities({
 |:---|:---|:---|
 | *select* | [Case Statements](#case-statements)`[]` | Array of case statements, and a default fallback |
 | *params* | `Object` | User-defined Hash that will be passed to every transform within the context of the transform's execution |
-| *before* | [TransformExpression](#transform-expression) | Transform to be resolved **before** the entity resolution |
-| *after* | [TransformExpression](#transform-expression) | Transform to be resolved **after** the entity resolution |
-| *error* | [TransformExpression](#transform-expression) | Transform to be resolved in case of an error |
+| *before* | [ReducerExpression](#reducer-expression) | Transform to be resolved **before** the entity resolution |
+| *after* | [ReducerExpression](#reducer-expression) | Transform to be resolved **after** the entity resolution |
+| *error* | [ReducerExpression](#reducer-expression) | Transform to be resolved in case of an error |
 
 ##### <a name="case-statements">Case Statements</a>
 
@@ -2544,13 +2544,13 @@ For examples of control entities, see the ones used on the unit tests: [Control 
 ```js
 dataPoint.addEntities({
   'schema:<entityId>': {
-    value: TransformExpression,
+    value: ReducerExpression,
     schema: JSONSchema,
     options: Object,
 
-    before: TransformExpression,
-    after: TransformExpression,
-    error: TransformExpression,
+    before: ReducerExpression,
+    after: ReducerExpression,
+    error: ReducerExpression,
     params: Object
   }
 })
@@ -2560,13 +2560,13 @@ dataPoint.addEntities({
 
 | Key | Type | Description |
 |:---|:---|:---|
-| *value* | [TransformExpression](#transform-expression) | The value that this entity will pass to the schema validation |
+| *value* | [ReducerExpression](#reducer-expression) | The value that this entity will pass to the schema validation |
 | *schema* | `Object` | Valid [JSON Schema](http://json-schema.org/documentation.html) object |
 | *options* | `Object` | Avj's [options](https://github.com/epoberezkin/ajv#options) object
 | *params* | `Object` | User-defined Hash that will be passed to every transform within the context of the transform's execution |
-| *before* | [TransformExpression](#transform-expression) | Transform to be resolved **before** the entity resolution |
-| *after* | [TransformExpression](#transform-expression) | Transform to be resolved **after** the entity resolution |
-| *error* | [TransformExpression](#transform-expression) | Transform to be resolved in case of an error |
+| *before* | [ReducerExpression](#reducer-expression) | Transform to be resolved **before** the entity resolution |
+| *after* | [ReducerExpression](#reducer-expression) | Transform to be resolved **after** the entity resolution |
+| *error* | [ReducerExpression](#reducer-expression) | Transform to be resolved in case of an error |
 
 **EXAMPLES**
 
@@ -2821,7 +2821,7 @@ function create (spec, id) {
 function resolve (accumulator, resolveTransform) {
   // get Entity Spec
   const spec = accumulator.reducer.spec
-  // resolve 'spec.value' TransformExpression
+  // resolve 'spec.value' ReducerExpression
   // against accumulator
   return resolveTransform(accumulator, spec.value)
     .then((acc) => {

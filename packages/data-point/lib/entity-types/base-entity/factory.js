@@ -1,7 +1,7 @@
 const deepFreeze = require('deep-freeze')
 const defaultTo = require('lodash/defaultTo')
 
-const createTransform = require('../../transform-expression').create
+const createTransform = require('../../reducer-types').create
 
 /**
  * @param {function} Factory - factory function to create the entity

@@ -34,7 +34,7 @@ describe('TransformFactory#create', () => {
   test('TransformFactory#create default', () => {
     const result = TransformFactory.create()
 
-    expect(result).toBeInstanceOf(TransformFactory.TransformExpression)
+    expect(result).toBeInstanceOf(TransformFactory.ReducerExpression)
     expect(result.context).toBeUndefined()
     expect(result.reducers).toHaveLength(0)
   })

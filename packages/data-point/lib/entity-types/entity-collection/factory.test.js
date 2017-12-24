@@ -6,12 +6,12 @@ const modelFactory = require('./factory')
 test('modelFactory#create default', () => {
   const result = modelFactory.create({})
 
-  expect(result.error).toHaveProperty('typeOf', 'TransformExpression')
-  expect(result.before).toHaveProperty('typeOf', 'TransformExpression')
-  expect(result.after).toHaveProperty('typeOf', 'TransformExpression')
+  expect(result.error).toHaveProperty('type', 'ReducerExpression')
+  expect(result.before).toHaveProperty('type', 'ReducerExpression')
+  expect(result.after).toHaveProperty('type', 'ReducerExpression')
   expect(result.params).toEqual({})
 
-  expect(result.value).toHaveProperty('typeOf', 'TransformExpression')
+  expect(result.value).toHaveProperty('type', 'ReducerExpression')
   expect(result.compose).toBeInstanceOf(Array)
 })
 
@@ -24,8 +24,8 @@ describe('parse loose modifiers', () => {
     expect(result.compose).toBeInstanceOf(Array)
     expect(result.compose[0]).toHaveProperty('type', 'map')
     expect(result.compose[0].transform).toHaveProperty(
-      'typeOf',
-      'TransformExpression'
+      'type',
+      'ReducerExpression'
     )
   })
 
@@ -52,8 +52,8 @@ describe('parse compose modifier', () => {
     expect(result.compose).toBeInstanceOf(Array)
     expect(result.compose[0]).toHaveProperty('type', 'map')
     expect(result.compose[0].transform).toHaveProperty(
-      'typeOf',
-      'TransformExpression'
+      'type',
+      'ReducerExpression'
     )
   })
 

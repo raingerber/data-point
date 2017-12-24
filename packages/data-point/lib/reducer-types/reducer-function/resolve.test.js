@@ -1,10 +1,13 @@
 /* eslint-env jest */
 'use strict'
 
-const AccumulatorFactory = require('../accumulator/factory')
-const reducerFactory = require('../reducer/factory')
+const AccumulatorFactory = require('../../accumulator/factory')
+const createTransform = require('../reducer-expression').create
 const resolveFunction = require('./resolve')
-const createTransform = require('../transform-expression').create
+
+const reducerFactory = source => {
+  return createTransform(source).reducers[0]
+}
 
 describe('resolve#filter.resolve', () => {
   test('resolves node style callback', () => {
@@ -12,7 +15,7 @@ describe('resolve#filter.resolve', () => {
       value: 'test'
     })
 
-    const reducer = reducerFactory.create(createTransform, (acc, done) =>
+    const reducer = reducerFactory((acc, done) =>
       done(null, `${acc.value}node`)
     )
 
@@ -26,10 +29,7 @@ describe('resolve#filter.resolve', () => {
       value: 'test'
     })
 
-    const reducer = reducerFactory.create(
-      createTransform,
-      acc => `${acc.value}sync`
-    )
+    const reducer = reducerFactory(acc => `${acc.value}sync`)
 
     return resolveFunction.resolve(accumulator, reducer).then(result => {
       expect(result.value).toBe('testsync')
@@ -41,7 +41,7 @@ describe('resolve#filter.resolve', () => {
       value: 'test'
     })
 
-    const reducer = reducerFactory.create(createTransform, acc =>
+    const reducer = reducerFactory(acc =>
       Promise.resolve(`${acc.value}promise`)
     )
 
@@ -55,7 +55,7 @@ describe('resolve#filter.resolve', () => {
       value: 'test'
     })
 
-    const reducer = reducerFactory.create(createTransform, (acc, done) => {
+    const reducer = reducerFactory((acc, done) => {
       return done(new Error('Test'))
     })
 

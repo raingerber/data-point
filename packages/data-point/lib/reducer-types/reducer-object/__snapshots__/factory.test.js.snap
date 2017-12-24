@@ -6,7 +6,7 @@ Array [
     "path": Array [
       "a1",
     ],
-    "transform": TransformExpression {
+    "transform": ReducerExpression {
       "reducers": Array [
         ReducerPath {
           "asCollection": true,
@@ -15,7 +15,7 @@ Array [
           "type": "ReducerPath",
         },
       ],
-      "typeOf": "TransformExpression",
+      "type": "ReducerExpression",
     },
   },
   Object {
@@ -23,7 +23,7 @@ Array [
       "b1",
       "a2",
     ],
-    "transform": TransformExpression {
+    "transform": ReducerExpression {
       "reducers": Array [
         ReducerPath {
           "asCollection": false,
@@ -36,7 +36,7 @@ Array [
           "type": "ReducerFunction",
         },
       ],
-      "typeOf": "TransformExpression",
+      "type": "ReducerExpression",
     },
   },
   Object {
@@ -44,7 +44,7 @@ Array [
       "b1",
       "b2",
     ],
-    "transform": TransformExpression {
+    "transform": ReducerExpression {
       "reducers": Array [
         ReducerObject {
           "props": Array [
@@ -52,7 +52,7 @@ Array [
               "path": Array [
                 "a3",
               ],
-              "transform": TransformExpression {
+              "transform": ReducerExpression {
                 "reducers": Array [
                   ReducerEntity {
                     "asCollection": false,
@@ -61,14 +61,14 @@ Array [
                     "type": "ReducerEntity",
                   },
                 ],
-                "typeOf": "TransformExpression",
+                "type": "ReducerExpression",
               },
             },
             Object {
               "path": Array [
                 "b3",
               ],
-              "transform": TransformExpression {
+              "transform": ReducerExpression {
                 "reducers": Array [
                   ReducerPath {
                     "asCollection": false,
@@ -77,14 +77,14 @@ Array [
                     "type": "ReducerPath",
                   },
                 ],
-                "typeOf": "TransformExpression",
+                "type": "ReducerExpression",
               },
             },
           ],
           "type": "ReducerObject",
         },
       ],
-      "typeOf": "TransformExpression",
+      "type": "ReducerExpression",
     },
   },
 ]

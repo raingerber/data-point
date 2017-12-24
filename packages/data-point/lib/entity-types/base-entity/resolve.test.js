@@ -2,7 +2,8 @@
 'use strict'
 
 const ResolveEntity = require('./resolve')
-const ReducerEntity = require('../../reducer-entity')
+const ReducerEntity = require('../../reducer-types/reducer-entity')
+const ReducerExpression = require('../../reducer-types/reducer-expression')
 
 const FixtureStore = require('../../../test/utils/fixture-store')
 const helpers = require('../../helpers')
@@ -129,8 +130,6 @@ describe('ResolveEntity.resolveMiddleware', () => {
   })
 })
 
-const ResolveTransform = require('../../transform-expression/resolve')
-
 describe('ResolveEntity.resolveEntity', () => {
   const defaultResolver = (acc, resolveTransform) => Promise.resolve(acc)
 
@@ -206,7 +205,7 @@ describe('ResolveEntity.resolve', () => {
     const reducer = ReducerEntity.create(entityId)
     return ResolveEntity.resolve(
       dataPoint,
-      ResolveTransform.resolve,
+      ReducerExpression.resolve,
       racc,
       reducer,
       resolver

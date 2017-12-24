@@ -56,12 +56,6 @@ function resolveReducer (store, accumulator, reducer) {
 
 module.exports.resolveReducer = resolveReducer
 
-const reduceContext = store => (accumulator, reducer) => {
-  return resolveReducer(store, accumulator, reducer)
-}
-
-module.exports.reduceContext = reduceContext
-
 /**
  * resolves a given transform
  *
@@ -75,10 +69,9 @@ function resolve (store, accumulator, transform) {
     return Promise.resolve(accumulator)
   }
 
-  const reduceTransformReducer = reduceContext(store)
   const result = Promise.reduce(
     transform.reducers,
-    reduceTransformReducer,
+    _.partial(resolveReducer, store),
     accumulator
   )
 

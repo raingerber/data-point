@@ -2,7 +2,7 @@
 
 const _ = require('lodash')
 const fp = require('lodash/fp')
-const createTransform = require('../../transform-expression').create
+const createTransform = require('../../reducer-types').create
 const createBaseEntity = require('../base-entity').create
 const TransformKeys = require('./transform-keys')
 
