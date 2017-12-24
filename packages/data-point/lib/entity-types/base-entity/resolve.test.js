@@ -111,23 +111,6 @@ describe('ResolveEntity.resolveMiddleware', () => {
       expect(acc.value).toEqual('bar')
     })
   })
-
-  test('It should execute a middleware', () => {
-    dataPoint.middleware.use('request:before', (acc, next) => {
-      acc.resolve('bar')
-      next(null)
-    })
-
-    const racc = helpers.createAccumulator('foo')
-    return ResolveEntity.resolveMiddleware(dataPoint, 'request:before', racc)
-      .catch(reason => reason)
-      .then(reason => {
-        expect(reason).toBeInstanceOf(Error)
-        expect(reason).toHaveProperty('name', 'bypass')
-        expect(reason).toHaveProperty('bypass', true)
-        expect(reason).toHaveProperty('bypassValue.value', 'bar')
-      })
-  })
 })
 
 describe('ResolveEntity.resolveEntity', () => {
