@@ -38,7 +38,6 @@ function mockReducer (reducer, acc) {
 
 module.exports.mockReducer = mockReducer
 
-// TODO remove this
 const createTransform = require('../transform-expression').create
 
 module.exports.createTransform = createTransform
