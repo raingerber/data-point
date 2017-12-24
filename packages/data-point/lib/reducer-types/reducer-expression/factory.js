@@ -36,6 +36,10 @@ function parseFromString (source) {
 
 module.exports.parseFromString = parseFromString
 
+/**
+ * @param {*} source
+ * @returns {*}
+ */
 function parseTokenExpression (source) {
   return _.isString(source) ? parseFromString(source) : source
 }
@@ -69,64 +73,26 @@ function parse (src) {
 module.exports.parse = parse
 
 /**
- * @param {*} source
- * @returns {boolean}
- */
-function isValid (source) {
-  const type = typeof source
-  return (
-    type === 'string' ||
-    type === 'function' ||
-    source instanceof Array ||
-    _.isPlainObject(source)
-  )
-}
-
-module.exports.isValid = isValid
-
-/**
- * @param {*} source
- * @throws if source is not a supported type
- * @return {boolean}
- */
-function validate (source) {
-  if (isValid(source)) {
-    return true
-  }
-  const message = [
-    `Could not parse a ReducerExpression. The ReducerExpression:\n `,
-    _.attempt(util.inspect, source),
-    '\nis not using a valid type, try using an Array, String, Object, or Function.',
-    '\nMore info: https://github.com/ViacomInc/data-point/tree/master/packages/data-point#reducer-expression\n'
-  ].join('')
-  throw new Error(message)
-}
-
-module.exports.validate = validate
-
-const reducerTypes = [ReducerEntity, ReducerFunction, ReducerPath]
-
-/**
- * parse reducer
- * @param  {string} source - reducer string representation
+ * @param {Function} createTransform
+ * @param {Object|Function|Array|string} source - source for creating a reducer
  * @return {reducer}
  */
 function createReducer (createTransform, source) {
-  // ReducerObject requires an extra parameter, so
-  // it's not included in the reducerTypes array
+  // checking this separately because it requires a second parameter
   if (ReducerObject.isType(source)) {
     return ReducerObject.create(createTransform, source)
   }
 
-  const reducer = reducerTypes.find(r => r.isType(source))
+  const reducer = [ReducerEntity, ReducerFunction, ReducerPath].find(r =>
+    r.isType(source)
+  )
 
   if (_.isUndefined(reducer)) {
     const message = [
-      'Invalid reducer type.',
-      ' Could not find a matching reducer type while parsing the value:\n ',
+      'Invalid reducer type. Could not find a matching reducer type while parsing the value:\n',
       _.attempt(util.inspect, source),
-      '\nFor a list of supported types visit:\n',
-      'https://github.com/ViacomInc/data-point/tree/master/packages/data-point#reducers\n'
+      '\nTry using an Array, String, Object, or Function.\n',
+      'More info: https://github.com/ViacomInc/data-point/tree/master/packages/data-point#reducers\n'
     ].join('')
 
     throw new Error(message)
@@ -136,11 +102,10 @@ function createReducer (createTransform, source) {
 }
 
 /**
- * @param {*} source
- * @return {Transform}
+ * @param {Object|Function|Array|string} source
+ * @return {ReducerExpression}
  */
 function create (source = []) {
-  validate(source)
   const tokens = parse(source)
   const reducers = tokens.map(token => createReducer(create, token))
 
