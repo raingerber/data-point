@@ -10,14 +10,14 @@ const _isDone = acc => false
  *                                 (similar to Array.reduce or Promise.reduce)
  * @returns {Function}
  */
-const promiseArrayHelper = chainResults => {
+const getPromiseArrayResolver = chainResults => {
   /**
    * @param {Array} reducers
    * @param {Function} resolve
    * @param {Function} isDone
    * @returns {Function}
    */
-  return function reduce (reducers, { resolver, isDone }) {
+  return function resolvePromiseArray (reducers, { resolver, isDone }) {
     if (reducers.length === 0) {
       return Promise.resolve.bind(Promise)
     }
@@ -50,6 +50,6 @@ const promiseArrayHelper = chainResults => {
   }
 }
 
-module.exports.map = promiseArrayHelper(false)
+module.exports.map = getPromiseArrayResolver(false)
 
-module.exports.reduce = promiseArrayHelper(true)
+module.exports.reduce = getPromiseArrayResolver(true)
