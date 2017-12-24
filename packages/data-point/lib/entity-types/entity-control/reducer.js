@@ -1,6 +1,12 @@
 'use strict'
 
-const Promise = require('bluebird')
+const PromiseArray = require('../../utils/promise-array')
+
+/**
+ * @param {Accumulator} acc
+ * @returns {boolean}
+ */
+const isDone = acc => !!acc
 
 /**
  *
@@ -10,32 +16,15 @@ const Promise = require('bluebird')
  * @returns
  */
 function getMatchingCaseStatement (caseStatements, acc, resolveTransform) {
-  return Promise.reduce(
-    caseStatements,
-    (result, statement) => {
-      if (result) {
-        // doing this until proven wrong :)
-        const err = new Error('bypassing')
-        err.name = 'bypass'
-        err.bypass = true
-        err.bypassValue = result
-        return Promise.reject(err)
-      }
+  const resolver = (acc, statement) => {
+    return resolveTransform(acc, statement.case).then(acc => {
+      return acc.value ? statement : false
+    })
+  }
 
-      return resolveTransform(acc, statement.case).then(res => {
-        return res.value ? statement : false
-      })
-    },
-    null
-  ).catch(error => {
-    // checking if this is an error to bypass the `then` chain
-    if (error.bypass === true) {
-      return error.bypassValue
-    }
-
-    throw error
-  })
+  return PromiseArray.map(caseStatements, { resolver, isDone })(acc)
 }
+
 module.exports.getMatchingCaseStatement = getMatchingCaseStatement
 
 function resolve (acc, resolveTransform) {

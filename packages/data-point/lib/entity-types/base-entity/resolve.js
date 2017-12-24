@@ -7,6 +7,8 @@ const middleware = require('../../middleware')
 
 const utils = require('../../utils')
 
+const PromiseArray = require('../../utils/promise-array')
+
 function resolveErrorReducers (error, accumulator, resolveReducer) {
   const errorTransform = accumulator.reducer.spec.error
 
@@ -50,37 +52,31 @@ function createCurrentAccumulator (store, accumulator, reducer) {
 module.exports.createCurrentAccumulator = createCurrentAccumulator
 
 /**
- * Resolves a middeware, this method contains a 'hack'
- * which consists in using an error to bypass the
- * chain of promise then that come after it.
- *
- * If there is a better/faster more elegant way to do this
- * then pls let me know and send a PR
- *
  * @param {Object} store - dataPoint instance
  * @param {string} name - name of middleware to execute
  * @param {Accumulator} acc - current accumulator
  */
 function resolveMiddleware (store, name, acc) {
-  return middleware.resolve(store, name, acc).then(middlewareResult => {
+  return middleware.resolve(store, name, acc).then(result => {
     const reqCtx = utils.assign(acc, {
-      value: middlewareResult.value,
-      locals: middlewareResult.locals
+      value: result.value,
+      locals: result.locals,
+      ___resolve: result.___resolve
     })
-
-    if (middlewareResult.___resolve === true) {
-      // doing this until proven wrong :)
-      const err = new Error('bypassing middleware')
-      err.name = 'bypass'
-      err.bypass = true
-      err.bypassValue = reqCtx
-      return Promise.reject(err)
-    }
 
     return reqCtx
   })
 }
+
 module.exports.resolveMiddleware = resolveMiddleware
+
+/**
+ * @param {Accumulator} acc
+ * @returns {boolean}
+ */
+const isDone = acc => acc.___resolve === true
+
+module.exports.isDone = isDone
 
 function resolveEntity (
   store,
@@ -106,22 +102,21 @@ function resolveEntity (
     timeId = `⧖ ${accUid.context.id}(${accUid.euid})`
     console.time(timeId)
   }
-  return Promise.resolve(accUid)
-    .then(acc => resolveMiddleware(store, `before`, acc))
-    .then(acc => resolveMiddleware(store, `${reducer.entityType}:before`, acc))
-    .then(acc => resolveTransform(acc, acc.reducer.spec.before))
-    .then(acc => mainResolver(acc, resolveTransform))
-    .then(acc => resolveTransform(acc, acc.reducer.spec.after))
-    .then(acc => middleware.resolve(store, `${reducer.entityType}:after`, acc))
-    .then(acc => resolveMiddleware(store, `after`, acc))
+
+  const reducers = [
+    acc => resolveMiddleware(store, `before`, acc),
+    acc => resolveMiddleware(store, `${reducer.entityType}:before`, acc),
+    acc => resolveTransform(acc, acc.reducer.spec.before),
+    acc => mainResolver(acc, resolveTransform),
+    acc => resolveTransform(acc, acc.reducer.spec.after),
+    acc => resolveMiddleware(store, `${reducer.entityType}:after`, acc),
+    acc => resolveMiddleware(store, `after`, acc)
+  ]
+
+  return PromiseArray.reduce(reducers, { isDone })(accUid)
     .catch(error => {
-      // checking if this is an error to bypass the `then` chain
-      if (error.bypass === true) {
-        return error.bypassValue
-      }
       // attach entity information to help debug
       error.entityId = currentAccumulator.reducer.spec.id
-
       return resolveErrorReducers(error, currentAccumulator, resolveTransform)
     })
     .then(resultContext => {
