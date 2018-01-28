@@ -1,5 +1,7 @@
 const _ = require('lodash')
 
+const createReducerMap = require('../reducer-helpers/reducer-map').create
+
 const REDUCER_ENTITY = 'ReducerEntity'
 
 module.exports.type = REDUCER_ENTITY
@@ -8,14 +10,16 @@ module.exports.type = REDUCER_ENTITY
  * Defines a entity reducer
  * @class
  * @property {string} type - @see reducerType
- * @property {string} name - name of the reducer
+ * @property {string} id <entity-type>:<reducer-name>
  * @property {string} entityType - type of entity
+ * @property {string} name - name of the reducer
+ * @property {boolean} hasEmptyConditional
  */
 function ReducerEntity () {
   this.type = REDUCER_ENTITY
+  this.id = ''
+  this.entityType = ''
   this.name = ''
-  this.entityType = null
-  this.asCollection = false
   this.hasEmptyConditional = false
 }
 
@@ -40,18 +44,16 @@ module.exports.isType = isType
  * @return {reducer}
  */
 function create (createReducer, source) {
+  if (source.endsWith('[]')) {
+    return createReducerMap(createReducer, source.replace(/\[]$/, ''))
+  }
+
   const reducer = new ReducerEntity()
-  const tokens = source.split(':')
-
-  let entityType = tokens[0]
-  reducer.hasEmptyConditional = entityType.indexOf('?') === 0
-  reducer.entityType = entityType.replace(/^\?/, '')
-
-  let name = tokens[1]
-  reducer.asCollection = name.slice(-2) === '[]'
-  reducer.name = name.replace(/\[]$/, '')
-
-  reducer.id = `${reducer.entityType}:${reducer.name}`
+  const [entityType, name] = source.replace(/^\?/, '').split(':')
+  reducer.id = `${entityType}:${name}`
+  reducer.entityType = entityType
+  reducer.name = name
+  reducer.hasEmptyConditional = source.startsWith('?')
 
   return reducer
 }

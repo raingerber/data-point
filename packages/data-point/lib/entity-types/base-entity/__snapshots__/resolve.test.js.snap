@@ -1,5 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`ResolveEntity.resolve hash:asIs[] should throw if the input is not an array 1`] = `[TypeError: expecting an array or an iterable object but got [object Null]]`;
+
 exports[`ResolveEntity.resolveEntity if custom typeCheck throws then fail 1`] = `[Error: custom type error]`;
 
 exports[`ResolveEntity.resolveEntity inputType - throws error if inputType does not pass 1`] = `[Error: value did not pass type check, type expected: number but recevied: string. The value received is: 'foo']`;

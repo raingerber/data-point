@@ -197,38 +197,13 @@ function resolve (manager, resolveReducer, accumulator, reducer, mainResolver) {
     return Promise.resolve(accumulator)
   }
 
-  if (!reducer.asCollection) {
-    return resolveEntity(
-      manager,
-      resolveReducer,
-      accumulator,
-      reducer,
-      mainResolver
-    )
-  }
-
-  if (!Array.isArray(accumulator.value)) {
-    return Promise.resolve(utils.set(accumulator, 'value', undefined))
-  }
-
-  return Promise.map(accumulator.value, itemValue => {
-    const itemCtx = utils.set(accumulator, 'value', itemValue)
-
-    if (hasEmptyConditional && utils.isFalsy(itemValue)) {
-      return Promise.resolve(itemCtx)
-    }
-
-    return resolveEntity(
-      manager,
-      resolveReducer,
-      itemCtx,
-      reducer,
-      mainResolver
-    )
-  }).then(mappedResults => {
-    const value = mappedResults.map(acc => acc.value)
-    return utils.set(accumulator, 'value', value)
-  })
+  return resolveEntity(
+    manager,
+    resolveReducer,
+    accumulator,
+    reducer,
+    mainResolver
+  )
 }
 
 module.exports.resolve = resolve

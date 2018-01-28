@@ -106,7 +106,6 @@ Object {
               "a3",
             ],
             "reducer": ReducerEntity {
-              "asCollection": false,
               "entityType": "transform",
               "hasEmptyConditional": false,
               "id": "transform:entity-name",

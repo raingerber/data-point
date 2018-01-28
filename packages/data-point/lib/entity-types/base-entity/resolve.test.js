@@ -265,23 +265,6 @@ describe('ResolveEntity.resolve', () => {
     })
   })
 
-  test('It should resolve as collection', () => {
-    const resolver = (acc, resolveReducer) => {
-      const result = utils.set(acc, 'value', 'bar')
-      return Promise.resolve(result)
-    }
-    return resolve(resolver)('hash:asIs[]', ['foo']).then(acc => {
-      expect(acc).toHaveProperty('value', ['bar'])
-    })
-  })
-  test('It should return undefined if accumulator is not Array', () => {
-    const resolver = (acc, resolveReducer) => {
-      return Promise.resolve(acc)
-    }
-    return resolve(resolver)('hash:asIs[]', {}).then(acc => {
-      expect(acc.value).toBeUndefined()
-    })
-  })
   test('It should not execute resolver if flag hasEmptyConditional is true and value is empty', () => {
     const resolver = jest.fn()
     return resolve(resolver)('?hash:asIs', undefined).then(acc => {
@@ -299,20 +282,27 @@ describe('ResolveEntity.resolve', () => {
     })
   })
 
+  test('It should resolve as a ReducerMap', () => {
+    const input = [{ a: { h: { x: 1 } } }, { a: { h: { x: 2 } } }]
+    return dataPoint.resolve('hash:a.1[]', input).then(output => {
+      expect(output).toEqual([{ x: 1 }, { x: 2 }])
+    })
+  })
+
+  test('hash:asIs[] should throw if the input is not an array', () => {
+    return dataPoint
+      .resolve('hash:asIs[]', {})
+      .catch(e => e)
+      .then(result => {
+        expect(result).toBeInstanceOf(Error)
+        expect(result).toMatchSnapshot()
+      })
+  })
+
   test('It should execute resolver only on non empty items of collection if hasEmptyConditional is set', () => {
-    let count = 0
-    const resolver = (acc, resolveReducer) => {
-      const result = utils.set(acc, 'value', count++)
-      return Promise.resolve(result)
-    }
-    return resolve(resolver)('?hash:asIs[]', [
-      'a',
-      undefined,
-      'b',
-      null,
-      'c'
-    ]).then(acc => {
-      expect(acc).toHaveProperty('value', [0, undefined, 1, null, 2])
+    const input = [1, undefined, 2, null, 3]
+    return dataPoint.resolve('?model:a.1[]', input).then(output => {
+      expect(output).toEqual([6, undefined, 7, null, 8])
     })
   })
 })

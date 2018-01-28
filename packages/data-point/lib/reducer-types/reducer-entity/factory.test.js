@@ -28,36 +28,37 @@ describe('create', function () {
   test('default create', () => {
     const reducer = factory.create(createReducer, 'foo:abc')
     expect(reducer.hasEmptyConditional).toBe(false)
-    expect(reducer.asCollection).toBe(false)
     expect(reducer.type).toBe('ReducerEntity')
-    expect(reducer.name).toBe('abc')
+    expect(reducer.id).toBe('foo:abc')
     expect(reducer.entityType).toBe('foo')
+    expect(reducer.name).toBe('abc')
   })
 
-  test('as collection', () => {
+  test('with map', () => {
     const reducer = factory.create(createReducer, 'foo:abc[]')
-    expect(reducer.asCollection).toBe(true)
-    expect(reducer.hasEmptyConditional).toBe(false)
-    expect(reducer.type).toBe('ReducerEntity')
-    expect(reducer.name).toBe('abc')
-    expect(reducer.entityType).toBe('foo')
+    expect(reducer.type).toBe('ReducerMap')
+    expect(reducer.reducer.hasEmptyConditional).toBe(false)
+    expect(reducer.reducer.type).toBe('ReducerEntity')
+    expect(reducer.reducer.id).toBe('foo:abc')
+    expect(reducer.reducer.entityType).toBe('foo')
+    expect(reducer.reducer.name).toBe('abc')
   })
 
   test('with conditional', () => {
     const reducer = factory.create(createReducer, '?foo:abc')
     expect(reducer.hasEmptyConditional).toBe(true)
-    expect(reducer.asCollection).toBe(false)
     expect(reducer.type).toBe('ReducerEntity')
-    expect(reducer.name).toBe('abc')
+    expect(reducer.id).toBe('foo:abc')
     expect(reducer.entityType).toBe('foo')
+    expect(reducer.name).toBe('abc')
   })
 
-  test('with conditional and as collection', () => {
+  test('with conditional and with map', () => {
     const reducer = factory.create(createReducer, '?foo:abc[]')
-    expect(reducer.hasEmptyConditional).toBe(true)
-    expect(reducer.asCollection).toBe(true)
-    expect(reducer.type).toBe('ReducerEntity')
-    expect(reducer.name).toBe('abc')
-    expect(reducer.entityType).toBe('foo')
+    expect(reducer.type).toBe('ReducerMap')
+    expect(reducer.reducer.hasEmptyConditional).toBe(true)
+    expect(reducer.reducer.type).toBe('ReducerEntity')
+    expect(reducer.reducer.name).toBe('abc')
+    expect(reducer.reducer.entityType).toBe('foo')
   })
 })
