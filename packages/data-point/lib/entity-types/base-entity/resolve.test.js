@@ -282,10 +282,14 @@ describe('ResolveEntity.resolve', () => {
     })
   })
 
+  test('It should create a ReducerMap when [] syntax is used', () => {
+    expect(createReducer('model:a.1[]')).toMatchSnapshot()
+  })
+
   test('It should resolve as a ReducerMap', () => {
-    const input = [{ a: { h: { x: 1 } } }, { a: { h: { x: 2 } } }]
-    return dataPoint.resolve('hash:a.1[]', input).then(output => {
-      expect(output).toEqual([{ x: 1 }, { x: 2 }])
+    const input = [1, 2, 3]
+    return dataPoint.resolve('model:a.1[]', input).then(output => {
+      expect(output).toEqual([6, 7, 8])
     })
   })
 

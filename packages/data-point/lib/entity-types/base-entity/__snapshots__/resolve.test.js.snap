@@ -1,5 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`ResolveEntity.resolve It should create a ReducerMap when [] syntax is used 1`] = `
+ReducerMap {
+  "reducer": ReducerEntity {
+    "entityType": "model",
+    "hasEmptyConditional": false,
+    "id": "model:a.1",
+    "name": "a.1",
+    "type": "ReducerEntity",
+    Symbol(reducer): true,
+  },
+  "type": "ReducerMap",
+  Symbol(reducer): true,
+}
+`;
+
 exports[`ResolveEntity.resolve hash:asIs[] should throw if the input is not an array 1`] = `[TypeError: expecting an array or an iterable object but got [object Null]]`;
 
 exports[`ResolveEntity.resolveEntity if custom typeCheck throws then fail 1`] = `[Error: custom type error]`;
