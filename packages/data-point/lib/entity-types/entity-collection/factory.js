@@ -3,6 +3,9 @@ const createReducer = require('../../reducer-types').create
 const createBaseEntity = require('../base-entity').create
 const reducerHelpers = require('../../reducer-types/reducer-helpers')
 const { validateModifiers } = require('../validate-modifiers')
+const {
+  getTypeCheckSourceWithDefault
+} = require('../../helpers/type-check-helpers')
 
 /**
  * @class
@@ -22,7 +25,7 @@ const modifiers = {
 /**
  * @param {Array<Object>} composeSpec
  * @param {Map} tree
- * @return {Array<Object>}
+ * @return {Reducer}
  */
 function createCompose (composeSpec, tree) {
   const stubs = composeSpec.map(modifier => {
@@ -30,7 +33,7 @@ function createCompose (composeSpec, tree) {
     return factory(modifier.spec)
   })
 
-  return createReducer(stubs, tree)
+  return createReducer(stubs, { tree })
 }
 
 /**
@@ -44,12 +47,20 @@ function create (spec, id, tree) {
   validateModifiers(id, spec, modifierKeys.concat('compose'))
   parseCompose.validateComposeModifiers(id, spec, modifierKeys)
 
+  const outputType = getTypeCheckSourceWithDefault(
+    'collection',
+    'array',
+    spec.outputType
+  )
+  spec = Object.assign({}, spec, { outputType })
+
   const entity = createBaseEntity(EntityCollection, spec, id, tree)
 
   const composeSpec = parseCompose.parse(spec, modifierKeys)
   parseCompose.validateCompose(entity.id, composeSpec, modifierKeys)
-
-  entity.compose = createCompose(composeSpec, tree)
+  if (composeSpec.length) {
+    entity.compose = createCompose(composeSpec, tree)
+  }
 
   return Object.freeze(entity)
 }

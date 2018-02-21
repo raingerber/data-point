@@ -14,11 +14,10 @@ module.exports.type = REDUCER_LIST
  */
 function ReducerList () {
   this.type = 'ReducerList'
-  this.isEmpty = undefined
   this.reducers = []
 }
 
-module.exports.ReducerList = ReducerList
+module.exports.Constructor = ReducerList
 
 /**
  * @param {*} source
@@ -82,18 +81,18 @@ module.exports.parse = parse
  * @param {Map} tree
  * @return {Reducer}
  */
-function create (createReducer, source = [], tree) {
+function create (createReducer, source, tree) {
   const tokens = parse(source)
-  const reducers = tokens.map(token => createReducer(token))
+  const reducers = tokens.map(token => {
+    return createReducer(token, { tree })
+  })
 
   const reducer = new ReducerList()
-  reducer.isEmpty = _.isEmpty(reducers)
   reducer.reducers = reducers
 
-  tree &&
-    reducers.forEach((r, index) => {
-      tree.set(r, createNode(reducer, index))
-    })
+  tree && reducers.forEach((r, index) => {
+    tree.set(r, createNode(reducer, index))
+  })
 
   return reducer
 }

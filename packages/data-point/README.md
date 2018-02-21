@@ -38,10 +38,11 @@ npm install --save data-point
   - [find](#reducer-find)
   - [constant](#reducer-constant)
   - [parallel](#reducer-parallel)
+  - [withDefault](#reducer-default)
 - [Entities](#entities)
   - [dataPoint.addEntities](#api-data-point-add-entities)
   - [Built-in entities](#built-in-entities)
-    - [Transform](#transform-entity)
+    - [Reducer / Transform](#reducer-entity)
     - [Model](#model-entity)
     - [Entry](#entry-entity)
     - [Request](#request-entity)
@@ -49,6 +50,7 @@ npm install --save data-point
     - [Collection](#collection-entity)
     - [Control](#control-entity)
     - [Schema](#schema-entity)
+  - [Entity type checking](#entity-type-check)
   - [Entity ComposeReducer](#entity-compose-reducer)
   - [Inspecting Entities](#inspecting-entities)
   - [Extending Entities](#extending-entities)
@@ -268,7 +270,7 @@ Execute a [Reducer](#reducers) against an input value. This function supports cu
 **SYNOPSIS**
 
 ```js
-dataPoint.resolve(reducer:Reducer, input:*, options:TransformOptions):Promise(output:*)
+dataPoint.resolve(reducer:Reducer, input:*, options:Object):Promise(output:*)
 ```
 
 This method returns a **Promise** with the final output value.
@@ -279,7 +281,7 @@ This method returns a **Promise** with the final output value.
 |:---|:---|:---|
 | *reducer* | [Reducer](#reducers) | Reducer that manipulates the input. |
 | *input* | `*` | Input value that you want to transform. If **none**, pass `null` or empty object `{}`. |
-| *options* | [TransformOptions](#transform-options) | Options within the scope of the current transformation |
+| *options* | [Object](#transform-options) | Options within the scope of the current transformation |
 
 **EXAMPLES:**
 
@@ -299,9 +301,9 @@ This method is similar to [dataPoint.resolve()](#api-data-point-resolve). The di
 
 ```js
 // as promise
-dataPoint.transform(reducer:Reducer, input:*, options:TransformOptions):Promise(acc:*)
+dataPoint.transform(reducer:Reducer, input:*, options:Object):Promise(acc:*)
 // as nodejs callback function
-dataPoint.transform(reducer:Reducer, input:*, options:TransformOptions, done:Function)
+dataPoint.transform(reducer:Reducer, input:*, options:Object, done:Function)
 ```
 
 This method will return a **Promise** if `done` is omitted.
@@ -315,7 +317,7 @@ This method will return a **Promise** if `done` is omitted.
 | *options* | [Reducer](#reducers) | Request options. See this [example](#options-with-constants) for using constants in the reducer |
 | *done* | `function` _(optional)_ | Error-first callback [Node.js style callback](https://nodejs.org/api/errors.html#errors_node_js_style_callbacks) that has the arguments `(error, result)`, where `result` contains the final resolved [Accumulator](#accumulator). The actual transformation result will be inside the `result.value` property. |
 
-**<a name="transform-options">TransformOptions</a>**
+**<a name="transform-options">Options</a>**
 
 Options within the scope of the current transformation.
 
@@ -349,7 +351,7 @@ The `Accumulator.value` property is the data source from which you want to apply
 | *value*  | `Object` | Value to be transformed. |
 | *initialValue*  | `Object` | Initial value passed to the an entity. You can use this value as a reference to the initial value passed to your Entity before any reducer was applied. |
 | *values*  | `Object` | Access to the values stored via [dataPoint.addValue](#api-data-point-add-value). |
-| *params*  | `Object` | Value of the current Entity's params property. (for all entites except transform) |
+| *params*  | `Object` | Value of the current Entity's params property. (for all entities except [Reducer](#reducer-entity)) |
 | *locals*  | `Object` | Value passed from the `options` _argument_ when executing [dataPoint.transform](#api-data-point-transform). |
 | *reducer*  | `Object` | Information relative to the current [Reducer](#reducers) being executed. |
 
@@ -641,7 +643,7 @@ Example at: [examples/reducer-function-error.js](examples/reducer-function-error
 
 ### <a name="object-reducer">ObjectReducer</a>
 
-ObjectReducers are plain objects where the values are reducers. They're used to aggregate data or transform objects. For values that should be constants instead of reducers, you can use the [constant](#reducer-constant) reducer helper.
+These are plain objects where the value of each key is a [reducer](#reducers). They're used to aggregate data or transform objects. For values that should be constants instead of reducers, you can use the [constant](#reducer-constant) reducer helper.
 
 <details>
   <summary>Transforming an object</summary>
@@ -789,6 +791,16 @@ Each of the reducers might contain more ObjectReducers (which might contain redu
   ```
 </details>
 
+An empty `ObjectReducer` will resolve to an empty object:
+
+```js
+const reducer = {}
+
+const input = { a: 1 }
+
+dataPoint.resolve(reducer, input) // => {}
+```
+
 ### <a name="entity-reducer">EntityReducer</a>
 
 An EntityReducer is the actual implementation of an entity. When implementing an EntityReducer, you are actually passing the current [Accumulator](#accumulator) Object to an entity spec, to become its current Accumulator object.
@@ -846,6 +858,16 @@ A ListReducer is an array of reducers where the result of each reducer becomes t
 |:---|:---|
 | `['$a.b', (input) => { ... }]` | Get path `a.b`, pipe value to function reducer |
 | `['$a.b', (input) => { ... }, 'hash:Foo']` | Get path `a.b`, pipe value to function reducer, pipe result to `hash:Foo` |
+
+**IMPORTANT**: an empty `ListReducer` will resolve to `undefined`. This mirrors the behavior of empty functions.
+
+```js
+const reducer = []
+
+const input = 'INPUT'
+
+dataPoint.resolve(reducer, input) // => undefined
+```
 
 ### <a name="reducer-conditional-operator">Conditionally execute an entity</a>
 
@@ -1228,6 +1250,50 @@ parallel(reducers:Array<Reducer>):Array
   ```
 </details>
 
+### <a name="reducer-default">withDefault</a>
+
+The **withDefault** reducer adds a default value to any reducer type. If the reducer resolves to `null`, `undefined`, `NaN`, or `''`,
+the default is returned instead.
+
+**SYNOPSIS**
+
+```js
+withDefault(source:*, value:*):*
+```
+
+**Reducer's arguments**
+
+| Argument | Type | Description |
+|:---|:---|:---|
+| *source* | * | Source data for creating a [reducer](#reducers)  |
+| *value* | * | The default value to use (or a function that returns the default value) |
+
+The default value is not cloned before it's returned, so it's good practice to wrap any Objects in a function.
+
+**EXAMPLE:**
+
+```js
+const { withDefault } = DataPoint.helpers
+
+const input = {
+  a: undefined
+}
+
+// adds a default to a PathReducer
+const r1 = withDefault('$a', 50)
+
+dataPoint.resolve(r1, input) // => 50
+
+// passing a function is useful when the default value is
+// an object, because it returns a new object every time
+const r2 = withDefault('$a', () => {
+  return { b: 1 }
+})
+
+dataPoint.resolve(r2, input) // => { b: 1 }
+
+```
+
 ## <a name="entities">Entities</a>
 
 Entities are artifacts that transform data. An entity is represented by a data structure (spec) that defines how the entity behaves. 
@@ -1264,7 +1330,7 @@ dataPoint.addEntities({
 
 DataPoint comes with the following built-in entities: 
 
-- [Transform](#transform-entity)
+- [Reducer / Transform](#reducer-entity)
 - [Model](#model-entity)
 - [Entry](#entry-entity)
 - [Request](#request-entity)
@@ -1275,7 +1341,7 @@ DataPoint comes with the following built-in entities:
 
 #### <a name="entity-base-api">Entity Base API</a>
 
-All entities share a common API (except for [Transform](#transform-entity)).
+All entities share a common API (except for [Reducer](#reducer-entity)).
 
 ```js
 {
@@ -1305,15 +1371,15 @@ All entities share a common API (except for [Transform](#transform-entity)).
 
 | Key | Type | Description |
 |:---|:---|:---|
-| *inputType*  | String, [Reducer](#reducers) | type checks the entity's input value, does not mutate value. [Entity Type checking](#entity-type-check). |
+| *inputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's input value, but does not mutate it |
 | *before*  | [Reducer](#reducers) | reducer to be resolved **before** the entity resolution |
 | *after*   | [Reducer](#reducers) | reducer to be resolved **after** the entity resolution |
-| *outputType*  | String, [Reducer](#reducers) | type checks the entity's output value, does not mutate value. [Entity Type checking](#entity-type-check). |
+| *outputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's output value, but does not mutate it |
 | *error*   | [Reducer](#reducers) | reducer to be resolved in case of an error |
 | *params*  | `Object` | User defined Hash that will be passed to every transform within the context of the transform's execution |
 
 
-##### <a name="entity-type-check">Entity Type checking</a>
+##### <a name="entity-type-check">Entity type checking</a>
 
 You may use **inputType** and **outputType** to type check against the values being passed and resolved from an entity. Type checking does not mutate the result. 
 
@@ -1417,15 +1483,21 @@ To customize type checking you may use a [Reducer](#reducers). If the reducer th
 </details>
 
 
-#### <a name="transform-entity">Transform Entity</a>
+#### <a name="reducer-entity">Reducer Entity</a>
 
-A Transform entity is meant to be used as a 'snippet' entity that you can re-use in other entities. It does not expose the before/after/error/params API that other entities have.
+A Reducer entity is a 'snippet' that you can re-use in other entities. It does not expose the before/after/error/params API that other entities have.
 
-The value of a Transform entity is a [Reducer](#reducers).
-
-IMPORTANT: Transform Entities **do not support** [extension](#extending-entities).
+IMPORTANT: Reducer Entities **do not support** [extension](#extending-entities).
 
 **SYNOPSIS**
+
+```js
+dataPoint.addEntities({
+  'reducer:<entityId>': Reducer
+})
+```
+
+For backwards compatibility, the keyword **transform** can be used in place of **reducer**:
 
 ```js
 dataPoint.addEntities({
@@ -1434,7 +1506,7 @@ dataPoint.addEntities({
 ```
 
 <details>
-  <summary>Transform Entity Example</summary>
+  <summary>Reducer Entity Example</summary>
   
   ```js
   const input = {
@@ -1454,11 +1526,11 @@ dataPoint.addEntities({
   }
   
   dataPoint.addEntities({
-    'transform:foo': ['$a.b.c', getMax, multiplyBy(10)]
+    'reducer:foo': ['$a.b.c', getMax, multiplyBy(10)]
   })
   
   dataPoint
-    .resolve('transform:foo', input)
+    .resolve('reducer:foo', input)
     .then((output) => {
       assert.equal(output, 30)
     })
@@ -1490,10 +1562,10 @@ dataPoint.addEntities({
 
 | Key | Type | Description |
 |:---|:---|:---|
-| *inputType*  | String, [Reducer](#reducers) | type checks the entity's input value, does not mutate value. [Entity Type checking](#entity-type-check). |
+| *inputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's input value, but does not mutate it |
 | *before*  | [Reducer](#reducers) | reducer to be resolved **before** the entity resolution |
 | *after*   | [Reducer](#reducers) | reducer to be resolved **after** the entity resolution |
-| *outputType*  | String, [Reducer](#reducers) | type checks the entity's output value, does not mutate value. [Entity Type checking](#entity-type-check). |
+| *outputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's output value, but does not mutate it |
 | *error*   | [Reducer](#reducers) | reducer to be resolved in case of an error |
 | *params*  | `Object` | User defined Hash that will be passed to every transform within the context of the transform's execution |
 
@@ -1761,10 +1833,10 @@ dataPoint.addEntities({
 
 | Key | Type | Description |
 |:---|:---|:---|
-| *inputType*  | String, [Reducer](#reducers) | type checks the entity's input value, does not mutate value. [Entity Type checking](#entity-type-check). |
+| *inputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's input value, but does not mutate it |
 | *before*  | [Reducer](#reducers) | reducer to be resolved **before** the entity resolution |
 | *after*   | [Reducer](#reducers) | reducer to be resolved **after** the entity resolution |
-| *outputType*  | String, [Reducer](#reducers) | type checks the entity's output value, does not mutate value. [Entity Type checking](#entity-type-check). |
+| *outputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's output value, but does not mutate it |
 | *error*   | [Reducer](#reducers) | reducer to be resolved in case of an error |
 | *params*  | `Object` | User defined Hash that will be passed to every transform within the context of the transform's execution |
 
@@ -1794,13 +1866,13 @@ dataPoint.addEntities({
 
 | Key | Type | Description |
 |:---|:---|:---|
-| *inputType*  | String, [Reducer](#reducers) | type checks the entity's input value, does not mutate value. [Entity Type checking](#entity-type-check) |
+| *inputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's input value, but does not mutate it |
 | *before*  | [Reducer](#reducers) | reducer to be resolved **before** the entity resolution |
 | *url*   | [StringTemplate](#string-template) | String value to resolve the request's url |
 | *options* | [Reducer](#reducers) | reducer that returns an object to use as [request.js](https://github.com/request/request) options
 | *after*   | [Reducer](#reducers) | reducer to be resolved **after** the entity resolution |
 | *error*   | [Reducer](#reducers) | reducer to be resolved in case of an error |
-| *outputType*  | String, [Reducer](#reducers) | type checks the entity's output value, does not mutate value. [Entity Type checking](#entity-type-check) |
+| *outputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's output value, but does not mutate it |
 | *params*    | `Object` | User defined Hash that will be passed to every reducer within the context of the transform function's execution |
 
 ##### <a name="request-url">Request.url</a>
@@ -1906,7 +1978,7 @@ Example at: [examples/entity-request-string-template.js](examples/entity-request
 
 Example at: [examples/entity-request-options-locals.js](examples/entity-request-options-locals.js)
 
-For more information on acc.locals: [TransformOptions](#transform-options) and [Accumulator](#accumulator) Objects.
+For more information on acc.locals: [Transform Options](#transform-options) and [Accumulator](#accumulator) Objects.
 
 <a name="options-with-constants" >Using constants in the options reducer:</a>
 
@@ -1980,7 +2052,7 @@ If `params.inspect` is a `function`, you may execute custom debugging code to be
 
 A Hash entity transforms a _Hash_ like data structure. It enables you to manipulate the keys within a Hash. 
 
-To prevent unexpected results, **Hash** can only process **Plain Objects**, which are objects created by the Object constructor. If [Hash.value](#hash-value) does not resolve to a Plain Object it will **throw** an error. 
+To prevent unexpected results, a **Hash** can only return **Plain Objects**, which are objects created by the Object constructor. If a hash resolves to a different type, it will throw an error. This type check occurs *before* the value is passed to the (optional) `outputType` reducer.
 
 Hash entities expose a set of reducers: [mapKeys](#hash-mapKeys), [omitKeys](#hash-omitKeys), [pickKeys](#hash-pickKeys), [addKeys](#hash-addKeys), [addValues](#hash-addValues). You may apply one or more of these reducers to a Hash entity. Keep in mind that those reducers will always be executed in a specific order:
 
@@ -1989,8 +2061,6 @@ omitKeys -> pickKeys -> mapKeys -> addValues -> addKeys
 ```
 
 If you want to have more control over the order of execution, you may use the [compose](#entity-compose-reducer) reducer.
-
-**NOTE**: The Compose reducer is meant to operate only on Hash-type objects. If its context resolves to a non-Hash type, it will **throw an error**.
 
 **SYNOPSIS**
 
@@ -2018,7 +2088,7 @@ dataPoint.addEntities({
 
 | Key | Type | Description |
 |:---|:---|:---|
-| *inputType*  | String, [Reducer](#reducers) | type checks the entity's input value, does not mutate value. [Entity Type checking](#entity-type-check). |
+| *inputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's input value, but does not mutate it |
 | *before*  | [Reducer](#reducers) | reducer to be resolved **before** the entity resolution |
 | *value* | [Reducer](#reducers) | The value to which the Entity resolves |
 | *mapKeys* | [ObjectReducer](#object-reducer) | Map to a new set of key/values. Each value accepts a reducer |
@@ -2028,7 +2098,7 @@ dataPoint.addEntities({
 | *addValues* | `Object` | Add/Override hard-coded key/values. Internally, this uses the [assign](#reducer-assign) reducer helper |
 | *compose* | [ComposeReducer](#compose-reducer)`[]` | Modify the value of accumulator through an Array of `ComposeReducer` objects. Think of it as a [Compose/Flow Operation](https://en.wikipedia.org/wiki/Function_composition_(computer_science)), where the result of one operation gets passed to the next one|
 | *after*   | [Reducer](#reducers) | reducer to be resolved **after** the entity resolution |
-| *outputType*  | String, [Reducer](#reducers) | type checks the entity's output value, does not mutate value. [Entity Type checking](#entity-type-check). |
+| *outputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's output value, but does not mutate it. Collection only supports custom outputType reducers, and not the built-in types like **string**, **number**, etc. |
 | *error*   | [Reducer](#reducers) | reducer to be resolved in case of an error |
 | *params*    | `Object` | User-defined Hash that will be passed to every reducer within the context of the transform function's execution |
 
@@ -2318,7 +2388,7 @@ A Collection entity enables you to operate over an array. Its API provides basic
 
 Collection entities expose a set of reducers that you may apply to them: [map](#collection-map), [find](#collection-find), [filter](#collection-filter). These reducers are executed in a [specific order](#collection-reducers-order). If you want to have more control over the order of execution, use the [compose](#compose-reducer) reducer.
 
-To prevent unexpected results, a **Collection Entity** can only process **Arrays**, if Collection.value does not resolve to an Array it will **throw** an error. 
+To prevent unexpected results, a **Collection** can only return arrays. If a collection resolves to a different type, it will throw an eror. This type check occurs *before* the value is passed to the (optional) `outputType` reducer.
 
 **IMPORTANT:** Keep in mind that in DataPoint, **all** operations are asynchronous. If your operations do NOT need to be asynchronous, iterating over a large array might result in slower execution. In such cases, consider using a reducer function where you can implement a synchronous solution.
 
@@ -2346,7 +2416,7 @@ dataPoint.addEntities({
 
 | Key | Type | Description |
 |:---|:---|:---|
-| *inputType*  | String, [Reducer](#reducers) | type checks the entity's input value, does not mutate value. [Entity Type checking](#entity-type-check). |
+| *inputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's input value, but does not mutate it |
 | *before*  | [Reducer](#reducers) | reducer to be resolved **before** the entity resolution |
 | *value* | [Reducer](#reducers) | The value to which the Entity resolves |
 | *map* | [Reducer](#reducers) | Maps the items of an array. Internally, this uses the [map](#reducer-map) reducer helper |
@@ -2354,7 +2424,7 @@ dataPoint.addEntities({
 | *filter* | [Reducer](#reducers) | Filters the items of an array. Internally, this uses the [filter](#reducer-filter) reducer helper |
 | *compose* | [ComposeReducer](#compose-reducer)`[]` | Modify the value of accumulator through an Array of `ComposeReducer` objects. Think of it as a [Compose/Flow Operation](https://en.wikipedia.org/wiki/Function_composition_(computer_science)), where the result of one object gets passed to the next one |
 | *after* | [Reducer](#reducers) | reducer to be resolved **after** the entity resolution |
-| *outputType*  | String, [Reducer](#reducers) | type checks the entity's output value, does not mutate value. [Entity Type checking](#entity-type-check). |
+| *outputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's output value, but does not mutate it. Hash only supports custom outputType reducers, and not the built-in types like **string**, **number**, etc. |
 | *error* | [Reducer](#reducers) | reducer to be resolved in case of an error |
 | *params* | `Object` | User-defined Hash that will be passed to every reducer within the context of the transform function's execution |
 
@@ -2789,12 +2859,12 @@ dataPoint.addEntities({
 
 | Key | Type | Description |
 |:---|:---|:---|
-| *inputType*  | String, [Reducer](#reducers) | type checks the entity's input value, does not mutate value. [Entity Type checking](#entity-type-check). |
+| *inputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's input value, but does not mutate it |
 | *before* | [Reducer](#reducers) | reducer to be resolved **before** the entity resolution |
 | *select* | [Case Statements](#case-statements)`[]` | Array of case statements, and a default fallback |
 | *params* | `Object` | User-defined Hash that will be passed to every transform within the context of the transform's execution |
 | *after* | [Reducer](#reducers) | reducer to be resolved **after** the entity resolution |
-| *outputType*  | String, [Reducer](#reducers) | type checks the entity's output value, does not mutate value. [Entity Type checking](#entity-type-check). |
+| *outputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's output value, but does not mutate it |
 | *error* | [Reducer](#reducers) | reducer to be resolved in case of an error |
 
 ##### <a name="case-statements">Case Statements</a>
@@ -2877,13 +2947,13 @@ dataPoint.addEntities({
 
 | Key | Type | Description |
 |:---|:---|:---|
-| *inputType*  | String, [Reducer](#reducers) | type checks the entity's input value, does not mutate value. [Entity Type checking](#entity-type-check). |
+| *inputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's input value, but does not mutate it |
 | *before* | [Reducer](#reducers) | reducer to be resolved **before** the entity resolution |
 | *value* | [Reducer](#reducers) | The value that this entity will pass to the schema validation |
 | *schema* | `Object` | Valid [JSON Schema](http://json-schema.org/documentation.html) object. If the schema is not valid, an error is thrown when creating the entity. |
 | *options* | `Object` | Avj's [options](https://github.com/epoberezkin/ajv#options) object
 | *after* | [Reducer](#reducers) | reducer to be resolved **after** the entity resolution |
-| *outputType*  | String, [Reducer](#reducers) | type checks the entity's output value, does not mutate value. [Entity Type checking](#entity-type-check). |
+| *outputType*  | String, [Reducer](#reducers) | [type checks](#entity-type-check) the entity's output value, but does not mutate it |
 | *error* | [Reducer](#reducers) | reducer to be resolved in case of an error |
 | *params* | `Object` | User-defined Hash that will be passed to every transform within the context of the transform's execution |
 
@@ -3091,7 +3161,7 @@ dataPoint.addEntityType(id:String, spec:Object)
 
 #### <a name="data-point-add-entity-types">dataPoint.addEntityType</a>
 
-Adds a single Entity Type to the DataPoint instance.
+Adds a single Entity type to the DataPoint instance.
 
 **SYNOPSIS**
 
@@ -3103,7 +3173,7 @@ dataPoint.addEntityType(name:String, spec:Object)
 
 | Argument | Type | Description |
 |:---|:---|:---|
-| *name* | `Object` | Name of the new Entity Type |
+| *name* | `Object` | Name of the new Entity type |
 | *spec* | `Object` | New [Entity spec](#custom-entity-spec) API |
 
 #### <a name="data-point-add-entity-types">dataPoint.addEntityTypes</a>
@@ -3120,7 +3190,7 @@ dataPoint.addEntityTypes(specs:Object)
 
 | Argument | Type | Description |
 |:---|:---|:---|
-| *specs* | `Object` | Key/value hash where each key is the name of the new Entity Type and value is the [Entity spec](#custom-entity-spec) API. |
+| *specs* | `Object` | Key/value hash where each key is the name of the new Entity type and value is the [Entity spec](#custom-entity-spec) API. |
 
 #### <a name="custom-entity-spec">Custom Entity Spec</a>
 

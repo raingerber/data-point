@@ -18,7 +18,7 @@ function ReducerFilter () {
   this.transform = undefined
 }
 
-module.exports.ReducerFilter = ReducerFilter
+module.exports.Constructor = ReducerFilter
 
 /**
  * @param {Function} createReducer
@@ -28,7 +28,7 @@ module.exports.ReducerFilter = ReducerFilter
  */
 function create (createReducer, source, tree) {
   const reducer = new ReducerFilter()
-  reducer.reducer = createReducer(source)
+  reducer.reducer = createReducer(source, { tree })
   tree && tree.set(reducer.reducer, createNode(reducer))
 
   return reducer

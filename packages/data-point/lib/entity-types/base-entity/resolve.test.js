@@ -20,13 +20,13 @@ afterEach(() => {
 })
 
 describe('ResolveEntity.resolveErrorReducers', () => {
-  test('It should reject if no transform set', () => {
+  test('It should reject if no reducer is provided', () => {
     const err = new Error('Test')
     const accumulator = helpers.createAccumulator(
       {},
       {
         context: {
-          error: createReducer([])
+          error: null
         }
       }
     )
@@ -43,7 +43,7 @@ describe('ResolveEntity.resolveErrorReducers', () => {
       })
   })
 
-  test('It should handle if transform set', () => {
+  test('It should handle error if reducer is provided', () => {
     const err = new Error('Test')
     const accumulator = helpers.createAccumulator(
       {},
@@ -134,7 +134,7 @@ describe('ResolveEntity.resolveEntity', () => {
   const defaultResolver = (acc, resolveReducer) => Promise.resolve(acc)
 
   const resolveEntity = (entityId, input, options, resolver) => {
-    const racc = helpers.createAccumulator.call(null, input, options)
+    const racc = helpers.createAccumulator(input, options)
     const reducer = createReducerEntity(createReducer, entityId)
     return ResolveEntity.resolveEntity(
       dataPoint,
@@ -146,7 +146,7 @@ describe('ResolveEntity.resolveEntity', () => {
   }
 
   test('It should resolve entity', () => {
-    return resolveEntity('hash:asIs', 'foo').then(acc => {
+    return resolveEntity('model:asIs', 'foo').then(acc => {
       expect(acc).toHaveProperty('value', 'foo')
     })
   })
@@ -165,7 +165,7 @@ describe('ResolveEntity.resolveEntity', () => {
     const consoleTimeEnd = console.timeEnd
     console.time = jest.fn()
     console.timeEnd = jest.fn()
-    return resolveEntity('hash:asIs', 'foo', {
+    return resolveEntity('model:asIs', 'foo', {
       trace: true
     }).then(acc => {
       expect(console.time).toBeCalled()
@@ -178,18 +178,17 @@ describe('ResolveEntity.resolveEntity', () => {
 
   test('It should resolve through bypass', () => {
     dataPoint.middleware.use('hash:before', (acc, next) => {
-      acc.resolve('bar')
+      acc.resolve({ data: 'bar' })
       next(null)
     })
     return resolveEntity('hash:asIs', 'foo').then(acc => {
-      expect(acc).toHaveProperty('value', 'bar')
+      expect(acc.value).toEqual({ data: 'bar' })
     })
   })
 
   test('it should catch errors from middleware', () => {
     dataPoint.middleware.use('hash:before', (acc, next) => {
-      const err = new Error('test')
-      throw err
+      throw new Error('test')
     })
     return resolveEntity('hash:asIs', 'foo')
       .catch(err => err)
@@ -211,8 +210,24 @@ describe('ResolveEntity.resolveEntity', () => {
       expect(ac.value).toEqual(1)
     })
   })
+})
 
-  test('outputType - throws error if outputType does not pass', () => {
+describe('ResolveEntity.resolveEntity outputType', () => {
+  const defaultResolver = (acc, resolveReducer) => Promise.resolve(acc)
+
+  const resolveEntity = (entityId, input, options, resolver) => {
+    const racc = helpers.createAccumulator(input, options)
+    const reducer = createReducerEntity(createReducer, entityId)
+    return ResolveEntity.resolveEntity(
+      dataPoint,
+      resolveReducer,
+      racc,
+      reducer,
+      resolver || defaultResolver
+    )
+  }
+
+  test('throws error if value does not pass typeCheck', () => {
     return resolveEntity('model:c.1', 1)
       .catch(e => e)
       .then(e => {
@@ -220,19 +235,123 @@ describe('ResolveEntity.resolveEntity', () => {
       })
   })
 
-  test('outputType - if typeCheck passes then resolve normal', () => {
-    return resolveEntity('model:c.1', 'foo').then(ac => {
-      expect(ac.value).toEqual('foo')
+  test('throws error if before method returns value that does not pass typeCheck', () => {
+    return resolveEntity('model:c.5', 'some string')
+      .catch(e => e)
+      .then(e => {
+        expect(e).toMatchSnapshot()
+      })
+  })
+
+  test('throws error if middleware before returns value that does not pass typeCheck', () => {
+    dataPoint.middleware.use('model:before', (acc, next) => {
+      acc.resolve(1)
+      next(null)
+    })
+
+    return resolveEntity('model:c.1', 'some string')
+      .catch(e => e)
+      .then(e => {
+        expect(e).toMatchSnapshot()
+      })
+  })
+
+  test('throws error if global before middleware returns value that does not pass typeCheck', () => {
+    dataPoint.middleware.use('before', (acc, next) => {
+      acc.resolve(1)
+      next(null)
+    })
+
+    return resolveEntity('model:c.1', 'some string')
+      .catch(e => e)
+      .then(e => {
+        expect(e).toMatchSnapshot()
+      })
+  })
+
+  test('throws error if after method returns value that does not pass typeCheck', () => {
+    return resolveEntity('model:c.4', 'some string')
+      .catch(e => e)
+      .then(e => {
+        expect(e).toMatchSnapshot()
+      })
+  })
+
+  test('throws error if after middleware returns value that does not pass typeCheck', () => {
+    dataPoint.middleware.use('model:after', (acc, next) => {
+      acc.resolve(1)
+      next(null)
+    })
+
+    return resolveEntity('model:c.1', 'some string')
+      .catch(e => e)
+      .then(e => {
+        expect(e).toMatchSnapshot()
+      })
+  })
+
+  test('throws error if global after middleware returns value that does not pass typeCheck', () => {
+    dataPoint.middleware.use('after', (acc, next) => {
+      acc.resolve(1)
+      next(null)
+    })
+
+    return resolveEntity('model:c.1', 'some string')
+      .catch(e => e)
+      .then(e => {
+        expect(e).toMatchSnapshot()
+      })
+  })
+
+  test('passes if error method returns value with correct type', () => {
+    return resolveEntity('model:c.6', 'string').then(acc => {
+      expect(acc.value).toBe('error string')
     })
   })
 
-  test('typeCheck should not be able to change acc.value', () => {
+  test('throws if error method does not return value with correct type', () => {
+    return resolveEntity('model:c.7', 'string')
+      .catch(e => e)
+      .then(e => {
+        expect(e).toMatchSnapshot()
+      })
+  })
+
+  test('is bypassed if error throws error', () => {
+    return resolveEntity('model:c.8', 'string')
+      .catch(e => e)
+      .then(e => {
+        expect(e).toMatchSnapshot()
+      })
+  })
+
+  test('passes if error method catches typeCheck errors and returns value', () => {
+    return resolveEntity('model:c.9', 'string').then(acc => {
+      expect(acc.value).toBe('string from error')
+    })
+  })
+
+  test('fails if error method catches typeCheck errors and returns bad value', () => {
+    return resolveEntity('model:c.10', 'string')
+      .catch(e => e)
+      .then(e => {
+        expect(e).toMatchSnapshot()
+      })
+  })
+
+  test('resolves normally if typeCheck passes', () => {
+    return resolveEntity('model:c.1', 'foo').then(acc => {
+      expect(acc.value).toEqual('foo')
+    })
+  })
+
+  test('does not change acc.value', () => {
     return resolveEntity('model:c.2', 'my string').then(result => {
       expect(result.value).toEqual('my string')
     })
   })
 
-  test('if custom typeCheck throws then fail', () => {
+  test('throws error if custom typeCheck fails', () => {
     return resolveEntity('model:c.3', 123)
       .catch(e => e)
       .then(result => {
@@ -244,7 +363,7 @@ describe('ResolveEntity.resolveEntity', () => {
 
 describe('ResolveEntity.resolve', () => {
   const resolve = resolver => (entityId, input, options) => {
-    const racc = helpers.createAccumulator.call(null, input, options)
+    const racc = helpers.createAccumulator(input, options)
     const reducer = createReducerEntity(createReducer, entityId)
     return ResolveEntity.resolve(
       dataPoint,
@@ -260,7 +379,7 @@ describe('ResolveEntity.resolve', () => {
       const result = utils.set(acc, 'value', 'bar')
       return Promise.resolve(result)
     }
-    return resolve(resolver)('hash:asIs', 'foo').then(acc => {
+    return resolve(resolver)('model:asIs', 'foo').then(acc => {
       expect(acc).toHaveProperty('value', 'bar')
     })
   })
@@ -270,7 +389,7 @@ describe('ResolveEntity.resolve', () => {
       const result = utils.set(acc, 'value', 'bar')
       return Promise.resolve(result)
     }
-    return resolve(resolver)('hash:asIs[]', ['foo']).then(acc => {
+    return resolve(resolver)('model:asIs[]', ['foo']).then(acc => {
       expect(acc).toHaveProperty('value', ['bar'])
     })
   })
@@ -278,13 +397,13 @@ describe('ResolveEntity.resolve', () => {
     const resolver = (acc, resolveReducer) => {
       return Promise.resolve(acc)
     }
-    return resolve(resolver)('hash:asIs[]', {}).then(acc => {
+    return resolve(resolver)('model:asIs[]', {}).then(acc => {
       expect(acc.value).toBeUndefined()
     })
   })
   test('It should not execute resolver if flag hasEmptyConditional is true and value is empty', () => {
     const resolver = jest.fn()
-    return resolve(resolver)('?hash:asIs', undefined).then(acc => {
+    return resolve(resolver)('?model:asIs', undefined).then(acc => {
       expect(resolver).not.toHaveBeenCalled()
     })
   })
@@ -294,7 +413,7 @@ describe('ResolveEntity.resolve', () => {
       const result = utils.set(acc, 'value', 'bar')
       return Promise.resolve(result)
     }
-    return resolve(resolver)('?hash:asIs', 'foo').then(acc => {
+    return resolve(resolver)('?model:asIs', 'foo').then(acc => {
       expect(acc).toHaveProperty('value', 'bar')
     })
   })
@@ -305,7 +424,7 @@ describe('ResolveEntity.resolve', () => {
       const result = utils.set(acc, 'value', count++)
       return Promise.resolve(result)
     }
-    return resolve(resolver)('?hash:asIs[]', [
+    return resolve(resolver)('?model:asIs[]', [
       'a',
       undefined,
       'b',
@@ -314,5 +433,89 @@ describe('ResolveEntity.resolve', () => {
     ]).then(acc => {
       expect(acc).toHaveProperty('value', [0, undefined, 1, null, 2])
     })
+  })
+})
+
+describe('entity lifecycle methods', () => {
+  // modifies the given stack by reference
+  function addMiddleware (stack) {
+    dataPoint.middleware.use('before', (acc, next) => {
+      stack.push('before [middleware]')
+      next(null)
+    })
+    dataPoint.middleware.use('model:before', (acc, next) => {
+      stack.push('model:before [middleware]')
+      next(null)
+    })
+    dataPoint.middleware.use('model:after', (acc, next) => {
+      stack.push('model:after [middleware]')
+      next(null)
+    })
+    dataPoint.middleware.use('after', (acc, next) => {
+      stack.push('after [middleware]')
+      next(null)
+    })
+  }
+
+  function pushToStack (stack, value) {
+    stack.push(value)
+    return stack
+  }
+
+  test('It should resolve methods in the correct order with no error', () => {
+    const stack = []
+
+    addMiddleware(stack)
+
+    return dataPoint
+      .resolve('model:lifecycles', [], {
+        locals: {
+          before: () => pushToStack(stack, 'before'),
+          value: () => pushToStack(stack, 'value'),
+          after: () => pushToStack(stack, 'after'),
+          error: () => pushToStack(stack, 'error')
+        }
+      })
+      .catch(err => err)
+      .then(output => {
+        expect(output).toEqual([
+          'before [middleware]',
+          'model:before [middleware]',
+          'before',
+          'value',
+          'after',
+          'model:after [middleware]',
+          'after [middleware]'
+        ])
+      })
+  })
+  test('It should resolve methods in the correct order when error is thrown', () => {
+    const stack = []
+
+    addMiddleware(stack)
+
+    dataPoint.middleware.use('model:before', (acc, next) => {
+      stack.push('model:before [middleware with error]')
+      throw new Error()
+    })
+
+    return dataPoint
+      .resolve('model:lifecycles', [], {
+        locals: {
+          before: () => pushToStack(stack, 'before'),
+          value: () => pushToStack(stack, 'value'),
+          after: () => pushToStack(stack, 'after'),
+          error: () => pushToStack(stack, 'error')
+        }
+      })
+      .catch(err => err)
+      .then(output => {
+        expect(output).toEqual([
+          'before [middleware]',
+          'model:before [middleware]',
+          'model:before [middleware with error]',
+          'error'
+        ])
+      })
   })
 })

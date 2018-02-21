@@ -18,7 +18,7 @@ function ReducerAssign () {
   this.reducer = undefined
 }
 
-module.exports.ReducerAssign = ReducerAssign
+module.exports.Constructor = ReducerAssign
 
 /**
  * @param {Function} createReducer
@@ -28,7 +28,7 @@ module.exports.ReducerAssign = ReducerAssign
  */
 function create (createReducer, source, tree) {
   const reducer = new ReducerAssign()
-  reducer.reducer = createReducer(source)
+  reducer.reducer = createReducer(source, { tree })
   tree && tree.set(reducer.reducer, createNode(reducer))
 
   return reducer

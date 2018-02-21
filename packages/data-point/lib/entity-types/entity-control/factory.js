@@ -21,7 +21,7 @@ module.exports.EntityControl = EntityControl
  * @returns
  */
 function parseCaseStatement (statement, tree) {
-  return _.mapValues(statement, source => createReducer(source, tree))
+  return _.mapValues(statement, source => createReducer(source, { tree }))
 }
 
 module.exports.parseCaseStatement = parseCaseStatement
@@ -62,7 +62,7 @@ function parseSwitch (spec, tree) {
   const defaultStatement = parseDefaultStatement(spec.id, select)
   return {
     cases: parseCaseStatements(select, tree),
-    default: createReducer(defaultStatement, tree)
+    default: createReducer(defaultStatement, { tree })
   }
 }
 

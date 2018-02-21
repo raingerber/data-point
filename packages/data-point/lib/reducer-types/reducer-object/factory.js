@@ -15,12 +15,11 @@ module.exports.type = REDUCER_OBJECT
  */
 function ReducerObject () {
   this.type = REDUCER_OBJECT
-  this.isEmpty = undefined
   this.source = undefined
   this.reducers = undefined
 }
 
-module.exports.ReducerObject = ReducerObject
+module.exports.Constructor = ReducerObject
 
 /**
  * @param {*} source
@@ -61,7 +60,7 @@ function getProps (createReducer, source, stack = [], props = newProps()) {
       continue
     }
 
-    const reducer = createReducer(value)
+    const reducer = createReducer(value) // TODO { tree }
     if (reducer.type === 'ReducerConstant') {
       _.set(props.constants, path, reducer.value)
     } else {
@@ -96,14 +95,12 @@ function create (createReducer, source = {}, tree) {
   const props = getProps(createReducer, source)
 
   const reducer = new ReducerObject()
-  reducer.isEmpty = _.isEmpty(props.constants) && _.isEmpty(props.reducers)
   reducer.source = getSourceFunction(props.constants)
   reducer.reducers = props.reducers
 
-  tree &&
-    props.reducers.forEach(prop => {
-      tree.set(prop.reducer, createNode(reducer, prop.path))
-    })
+  tree && props.reducers.forEach(prop => {
+    tree.set(prop.reducer, createNode(reducer, prop.path))
+  })
 
   return reducer
 }

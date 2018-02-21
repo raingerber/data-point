@@ -29,24 +29,24 @@ beforeAll(() => {
   resolveReducerBound = helpers.createReducerResolver(dataPoint)
 })
 
-describe('entity.hash.resolve', () => {
-  test('entity.hash - only process Plain Objects', () => {
-    return transform('hash:asIs', [testData])
-      .catch(result => {
-        return result
-      })
+describe('Hash entity type checking', () => {
+  function resolveInvalid (entity, data) {
+    return dataPoint
+      .resolve(entity, data)
+      .catch(err => err)
       .then(result => {
         expect(result).toBeInstanceOf(Error)
-        expect(result.message).toMatchSnapshot()
-      })
-  })
-
-  test('entity.hash - throw error if value is not object', () => {
-    return transform('hash:noValue', null)
-      .catch(e => e)
-      .then(result => {
         expect(result).toMatchSnapshot()
       })
+  }
+  test('should throw error from default outputType reducer when output is not valid', () => {
+    return resolveInvalid('hash:asIs', [testData])
+  })
+  test('should throw error from a custom outputType reducer', () => {
+    return resolveInvalid('hash:CustomOutputType', {})
+  })
+  test('should execute the default outputType reducer before a custom outputType reducer ', () => {
+    return resolveInvalid('hash:CustomOutputType', [])
   })
 })
 
@@ -68,9 +68,9 @@ describe('entity.hash.mapKeys', () => {
       expect(acc.value).toEqual({ h: 2 })
     })
   })
-  test('do nothing if mapKeys is empty', () => {
+  test('returns empty object if mapKeys is empty', () => {
     return transform('hash:b.2', testData).then(acc => {
-      expect(acc.value).toEqual({ g1: 1 })
+      expect(acc.value).toEqual({})
     })
   })
 })
@@ -117,9 +117,9 @@ describe('entity.hash.pickKeys', () => {
       })
     })
   })
-  test('it should do nothing if pickKeys is empty', () => {
+  test('returns empty object if pickKeys is empty', () => {
     return transform('hash:e.2', testData).then(acc => {
-      expect(acc.value).toEqual({ g1: 1 })
+      expect(acc.value).toEqual({})
     })
   })
 })

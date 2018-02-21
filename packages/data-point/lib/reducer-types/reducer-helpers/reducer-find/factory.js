@@ -18,7 +18,7 @@ function ReducerFind () {
   this.reducer = undefined
 }
 
-module.exports.ReducerFind = ReducerFind
+module.exports.Constructor = ReducerFind
 
 /**
  * @param {Function} createReducer
@@ -28,7 +28,7 @@ module.exports.ReducerFind = ReducerFind
  */
 function create (createReducer, source, tree) {
   const reducer = new ReducerFind()
-  reducer.reducer = createReducer(source)
+  reducer.reducer = createReducer(source, { tree })
   tree && tree.set(reducer.reducer, createNode(reducer))
 
   return reducer

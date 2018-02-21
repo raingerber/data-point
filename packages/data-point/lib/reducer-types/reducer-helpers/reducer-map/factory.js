@@ -18,7 +18,7 @@ function ReducerMap () {
   this.reducer = undefined
 }
 
-module.exports.ReducerMap = ReducerMap
+module.exports.Constructor = ReducerMap
 
 /**
  * @param {Function} createReducer
@@ -28,7 +28,7 @@ module.exports.ReducerMap = ReducerMap
  */
 function create (createReducer, source, tree) {
   const reducer = new ReducerMap()
-  reducer.reducer = createReducer(source)
+  reducer.reducer = createReducer(source, { tree })
   tree && tree.set(reducer.reducer, createNode(reducer))
 
   return reducer

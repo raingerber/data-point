@@ -18,7 +18,7 @@ function ReducerParallel () {
   this.reducers = []
 }
 
-module.exports.ReducerParallel = ReducerParallel
+module.exports.Constructor = ReducerParallel
 
 /**
  * @param {Function} createReducer
@@ -27,13 +27,15 @@ module.exports.ReducerParallel = ReducerParallel
  * @return {Reducer}
  */
 function create (createReducer, source, tree) {
-  const reducers = source.map(token => createReducer(token))
+  const reducers = source.map(token => {
+    return createReducer(token, { tree })
+  })
+
   const reducer = new ReducerParallel()
   reducer.reducers = reducers
-  tree &&
-    reducers.forEach((r, index) => {
-      tree.set(r, createNode(reducer, index))
-    })
+  tree && reducers.forEach((r, index) => {
+    tree.set(r, createNode(reducer, index))
+  })
 
   return reducer
 }
