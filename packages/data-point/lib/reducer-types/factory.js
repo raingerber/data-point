@@ -1,8 +1,9 @@
-const _ = require('lodash')
 const util = require('util')
+const attempt = require('lodash/attempt')
 
-const { IS_REDUCER, DEFAULT_VALUE } = require('./reducer-symbols')
-
+const utils = require('../utils')
+const Symbols = require('./reducer-symbols')
+const { createNode } = require('../debug-utils')
 const ReducerEntity = require('./reducer-entity')
 const ReducerFunction = require('./reducer-function')
 const ReducerHelpers = require('./reducer-helpers')
@@ -24,7 +25,7 @@ const reducerTypes = [
  * @returns {boolean}
  */
 function isReducer (item) {
-  return !!(item && item[IS_REDUCER])
+  return !!(item && item[Symbols.IS_REDUCER])
 }
 
 module.exports.isReducer = isReducer
@@ -45,21 +46,19 @@ function normalizeInput (source) {
 }
 
 /**
- * parse reducer
  * @param {*} source
  * @param {Object} options
  * @throws if source is not a valid type for creating a reducer
- * @return {reducer}
+ * @return {Reducer}
  */
 function createReducer (source, options = {}) {
   source = normalizeInput(source)
   const reducerType = reducerTypes.find(r => r.isType(source))
-
-  if (_.isUndefined(reducerType)) {
+  if (typeof reducerType === 'undefined') {
     const message = [
       'Invalid reducer type.',
       ' Could not find a matching reducer type while parsing the value:\n ',
-      _.attempt(util.inspect, source),
+      attempt(util.inspect, source),
       '\nTry using an Array, String, Object, or Function.\n',
       'More info: https://github.com/ViacomInc/data-point/tree/master/packages/data-point#reducers\n'
     ].join('')
@@ -67,14 +66,35 @@ function createReducer (source, options = {}) {
     throw new Error(message)
   }
 
+  const create = options.create || createReducer
   // NOTE: recursive call
-  const reducer = reducerType.create(createReducer, source)
-  reducer[IS_REDUCER] = true
-  if (_.has(options, 'default')) {
-    reducer[DEFAULT_VALUE] = { value: options.default }
+  const reducer = reducerType.create(create, source)
+  if (options.hasOwnProperty('default')) {
+    reducer[Symbols.DEFAULT_VALUE] = { value: options.default }
   }
 
+  reducer[Symbols.IS_REDUCER] = true
   return Object.freeze(reducer)
 }
 
 module.exports.create = createReducer
+
+/**
+ * @param {*} source
+ * @return {Object}
+ */
+function createDebug (source) {
+  const tree = new WeakMap()
+  const create = (source, options) => {
+    options = utils.assign(options, { create })
+    const reducer = createReducer(source, options)
+    const node = createNode(options.parent, options.id)
+    tree.set(reducer, node)
+    return reducer
+  }
+
+  const reducer = create(source)
+  return { reducer, tree }
+}
+
+module.exports.createDebug = createDebug

@@ -76,15 +76,17 @@ module.exports.parse = parse
 /**
  * @param {Function} createReducer
  * @param {Array} source
- * @return {reducer}
+ * @return {Reducer}
  */
 function create (createReducer, source) {
   const tokens = parse(source)
-  const reducers = tokens.map(token => createReducer(token))
-
   const reducer = new ReducerList()
-  reducer.reducers = reducers
+  const reducers = tokens.map((token, index) => {
+    const options = { parent: reducer, id: index }
+    return createReducer(token, options)
+  })
 
+  reducer.reducers = reducers
   return reducer
 }
 

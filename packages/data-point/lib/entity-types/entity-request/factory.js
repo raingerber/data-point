@@ -34,7 +34,10 @@ function create (spec, id) {
   validateModifiers(id, spec, ['options', 'url'])
   const entity = createBaseEntity(EntityRequest, spec, id)
   entity.url = _.defaultTo(spec.url, '')
-  entity.options = createReducer(spec.options || defaultOptions)
+  entity.options = createReducer(spec.options || defaultOptions, {
+    parent: id,
+    id: 'options'
+  })
 
   return Object.freeze(entity)
 }

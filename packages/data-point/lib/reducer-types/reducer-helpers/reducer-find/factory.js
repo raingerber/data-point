@@ -9,7 +9,7 @@ module.exports.name = HELPER_NAME
 /**
  * @class
  * @property {string} type
- * @property {reducer} reducer
+ * @property {Reducer} reducer
  */
 function ReducerFind () {
   this.type = REDUCER_FIND
@@ -25,7 +25,7 @@ module.exports.Constructor = ReducerFind
  */
 function create (createReducer, source) {
   const reducer = new ReducerFind()
-  reducer.reducer = createReducer(source)
+  reducer.reducer = createReducer(source, { parent: reducer })
   return reducer
 }
 

@@ -34,7 +34,6 @@ function addToStore (store, items, override) {
 function addEntitiesToStore (store, entities) {
   const entitySpecs = _.defaultTo(entities, {})
   const specs = normalizeEntities.normalize(entitySpecs)
-
   _.forOwn(specs, specItem => {
     store.add(specItem.id, specItem.spec)
   })

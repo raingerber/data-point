@@ -9,7 +9,7 @@ module.exports.name = HELPER_NAME
 /**
  * @class
  * @property {string} type
- * @property {reducer} reducer
+ * @property {Reducer} reducer
  */
 function ReducerAssign () {
   this.type = REDUCER_ASSIGN
@@ -25,7 +25,7 @@ module.exports.Constructor = ReducerAssign
  */
 function create (createReducer, source) {
   const reducer = new ReducerAssign()
-  reducer.reducer = createReducer(source)
+  reducer.reducer = createReducer(source, { parent: reducer })
   return reducer
 }
 

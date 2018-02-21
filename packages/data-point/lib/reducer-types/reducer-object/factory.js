@@ -58,7 +58,8 @@ function getProps (createReducer, source, stack = [], props = newProps()) {
       continue
     }
 
-    const reducer = createReducer(value)
+    // TODO do not add a mapping for constants
+    const reducer = createReducer(value, path)
     if (reducer.type === 'ReducerConstant') {
       _.set(props.constants, path, reducer.value)
     } else {
@@ -86,15 +87,17 @@ module.exports.getSourceFunction = getSourceFunction
 /**
  * @param {Function} createReducer
  * @param {Object} source
- * @returns {reducer}
+ * @returns {Reducer}
  */
 function create (createReducer, source = {}) {
-  const props = getProps(createReducer, source)
-
   const reducer = new ReducerObject()
+  const _createReducer = (source, id) => {
+    return createReducer(source, { parent: reducer, id })
+  }
+
+  const props = getProps(_createReducer, source)
   reducer.source = getSourceFunction(props.constants)
   reducer.reducers = props.reducers
-
   return reducer
 }
 

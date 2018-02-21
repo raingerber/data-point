@@ -28,9 +28,10 @@ const modifiers = {
 
 /**
  * @param {Array<Object>} composeSpec
+ * @param {String} id
  * @return {Reducer}
  */
-function createCompose (composeSpec) {
+function createCompose (composeSpec, id) {
   const specList = composeSpec.map(modifier => {
     let spec
     switch (modifier.type) {
@@ -55,7 +56,7 @@ function createCompose (composeSpec) {
     return spec
   })
 
-  return createReducer(specList)
+  return createReducer(specList, { parent: id, id: 'compose' })
 }
 
 /**
@@ -80,7 +81,7 @@ function create (spec, id) {
   const compose = parseCompose.parse(spec, modifierKeys)
   parseCompose.validateCompose(entity.id, compose, modifierKeys)
   if (compose.length) {
-    entity.compose = createCompose(compose)
+    entity.compose = createCompose(compose, id)
   }
 
   return Object.freeze(entity)

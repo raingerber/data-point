@@ -1,47 +1,48 @@
 const deepFreeze = require('deep-freeze')
-const defaultTo = require('lodash/defaultTo')
-const { normalizeTypeCheckSource } = require('../../helpers/type-check-helpers')
 
+const { normalizeTypeCheckSource } = require('../../helpers/type-check-helpers')
 const createReducer = require('../../reducer-types').create
 
 /**
  * @param {Function} Factory - factory function to create the entity
- * @param {Object} spec - spec for the Entity
- * @param {string} id - Entity's id
+ * @param {Object} spec
+ * @param {string} entityId
  */
-function create (Factory, spec, id) {
+function create (Factory, spec, entityId) {
   const entity = new Factory(spec)
 
-  entity.id = id
+  entity.id = entityId
+
+  // TODO this is a placeholder because we don't have the ReducerEntity beforehand
+  const parent = entityId
 
   if (spec.before) {
-    entity.before = createReducer(spec.before)
+    entity.before = createReducer(spec.before, { parent, id: 'before' })
   }
 
   if (spec.value) {
-    entity.value = createReducer(spec.value)
+    entity.value = createReducer(spec.value, { parent, id: 'value' })
   }
 
   if (spec.after) {
-    entity.after = createReducer(spec.after)
+    entity.after = createReducer(spec.after, { parent, id: 'after' })
   }
 
   if (spec.error) {
-    entity.error = createReducer(spec.error)
+    entity.error = createReducer(spec.error, { parent, id: 'error' })
   }
 
   if (spec.inputType) {
     const inputType = normalizeTypeCheckSource(spec.inputType)
-    entity.inputType = createReducer(inputType)
+    entity.inputType = createReducer(inputType, { parent, id: 'inputType' })
   }
 
   if (spec.outputType) {
     const outputType = normalizeTypeCheckSource(spec.outputType)
-    entity.outputType = createReducer(outputType)
+    entity.outputType = createReducer(outputType, { parent, id: 'outputType' })
   }
 
-  entity.params = deepFreeze(defaultTo(spec.params, {}))
-
+  entity.params = deepFreeze(spec.params || {})
   return entity
 }
 

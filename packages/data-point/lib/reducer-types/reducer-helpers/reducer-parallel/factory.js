@@ -21,14 +21,16 @@ module.exports.Constructor = ReducerParallel
 /**
  * @param {Function} createReducer
  * @param {Array} source
- * @return {reducer}
+ * @return {Reducer}
  */
 function create (createReducer, source) {
-  const reducers = source.map(token => createReducer(token))
-
   const reducer = new ReducerParallel()
-  reducer.reducers = reducers
+  const reducers = source.map((token, index) => {
+    const options = { parent: reducer, id: index }
+    return createReducer(token, options)
+  })
 
+  reducer.reducers = reducers
   return reducer
 }
 
