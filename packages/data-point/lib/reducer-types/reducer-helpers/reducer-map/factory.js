@@ -1,5 +1,3 @@
-const { createNode } = require('../../../debug-utils')
-
 const REDUCER_MAP = 'ReducerMap'
 
 module.exports.type = REDUCER_MAP
@@ -23,14 +21,11 @@ module.exports.Constructor = ReducerMap
 /**
  * @param {Function} createReducer
  * @param {*} source - raw source for a reducer
- * @param {Map} tree
  * @return {ReducerMap}
  */
-function create (createReducer, source, tree) {
+function create (createReducer, source) {
   const reducer = new ReducerMap()
-  reducer.reducer = createReducer(source, { tree })
-  tree && tree.set(reducer.reducer, createNode(reducer))
-
+  reducer.reducer = createReducer(source, { parent: reducer })
   return reducer
 }
 

@@ -11,11 +11,10 @@ module.exports.EntityModel = EntityModel
  * Creates new Entity Object
  * @param {Object} spec
  * @param {string} entityId
- * @param {Map} tree
  * @return {EntityModel} Entity Object
  */
-function create (spec, entityId, tree) {
-  const entity = createBaseEntity(EntityModel, spec, entityId, tree)
+function create (spec, entityId) {
+  const entity = createBaseEntity(EntityModel, spec, entityId)
   return Object.freeze(entity)
 }
 

@@ -3,6 +3,7 @@ const attempt = require('lodash/attempt')
 
 const utils = require('../utils')
 const Symbols = require('./reducer-symbols')
+const { createNode } = require('../debug-utils')
 const ReducerEntity = require('./reducer-entity')
 const ReducerFunction = require('./reducer-function')
 const ReducerHelpers = require('./reducer-helpers')
@@ -47,8 +48,6 @@ function normalizeInput (source) {
 /**
  * @param {*} source
  * @param {Object} options
- * @param {Function} options.createReducer - optional
- * @param {Map} options.tree - optional
  * @throws if source is not a valid type for creating a reducer
  * @return {Reducer}
  */
@@ -69,7 +68,7 @@ function createReducer (source, options = {}) {
 
   const create = options.create || createReducer
   // NOTE: recursive call
-  const reducer = reducerType.create(create, source, options.tree)
+  const reducer = reducerType.create(create, source)
   if (options.hasOwnProperty('default')) {
     reducer[Symbols.DEFAULT_VALUE] = { value: options.default }
   }
@@ -85,13 +84,15 @@ module.exports.create = createReducer
  * @return {Object}
  */
 function createDebug (source) {
+  const tree = new Map()
   const create = (source, options) => {
     options = utils.assign(options, { create })
-    return createReducer(source, options)
+    const reducer = createReducer(source, options)
+    tree.set(reducer, createNode(options.parent, options.id))
+    return reducer
   }
 
-  const tree = new Map()
-  const reducer = create(source, { tree })
+  const reducer = create(source)
   return { reducer, tree }
 }
 

@@ -66,11 +66,10 @@ module.exports.stubFactories = stubFactories
 /**
  * @param {Function} createReducer
  * @param {ReducerStub} stub
- * @param {Map} tree
  * @returns {Reducer}
  */
-function createFromStub (createReducer, stub, tree) {
-  const args = [createReducer].concat(stub.args, tree)
+function createFromStub (createReducer, stub) {
+  const args = [createReducer].concat(stub.args)
   return reducers[stub.type].create.apply(null, args)
 }
 

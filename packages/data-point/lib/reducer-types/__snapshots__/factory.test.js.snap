@@ -23,3 +23,266 @@ Try using an Array, String, Object, or Function.
 More info: https://github.com/ViacomInc/data-point/tree/master/packages/data-point#reducers
 "
 `;
+
+exports[`reducer#createDebug  1`] = `
+ReducerObject {
+  "reducers": Array [
+    Object {
+      "path": Array [
+        "a",
+      ],
+      "reducer": ReducerList {
+        "reducers": Array [
+          ReducerPath {
+            "asCollection": false,
+            "body": [Function],
+            "name": "a",
+            "type": "ReducerPath",
+            Symbol(reducer): true,
+          },
+          ReducerPath {
+            "asCollection": false,
+            "body": [Function],
+            "name": "b",
+            "type": "ReducerPath",
+            Symbol(reducer): true,
+          },
+        ],
+        "type": "ReducerList",
+        Symbol(reducer): true,
+      },
+    },
+    Object {
+      "path": Array [
+        "b",
+      ],
+      "reducer": ReducerFunction {
+        "body": [Function],
+        "type": "ReducerFunction",
+        Symbol(reducer): true,
+      },
+    },
+  ],
+  "source": [Function],
+  "type": "ReducerObject",
+  Symbol(reducer): true,
+}
+`;
+
+exports[`reducer#createDebug  2`] = `
+Map {
+  ReducerPath {
+    "asCollection": false,
+    "body": [Function],
+    "name": "a",
+    "type": "ReducerPath",
+    Symbol(reducer): true,
+  } => Object {
+    "id": 0,
+    "parent": ReducerList {
+      "reducers": Array [
+        ReducerPath {
+          "asCollection": false,
+          "body": [Function],
+          "name": "a",
+          "type": "ReducerPath",
+          Symbol(reducer): true,
+        },
+        ReducerPath {
+          "asCollection": false,
+          "body": [Function],
+          "name": "b",
+          "type": "ReducerPath",
+          Symbol(reducer): true,
+        },
+      ],
+      "type": "ReducerList",
+      Symbol(reducer): true,
+    },
+  },
+  ReducerPath {
+    "asCollection": false,
+    "body": [Function],
+    "name": "b",
+    "type": "ReducerPath",
+    Symbol(reducer): true,
+  } => Object {
+    "id": 1,
+    "parent": ReducerList {
+      "reducers": Array [
+        ReducerPath {
+          "asCollection": false,
+          "body": [Function],
+          "name": "a",
+          "type": "ReducerPath",
+          Symbol(reducer): true,
+        },
+        ReducerPath {
+          "asCollection": false,
+          "body": [Function],
+          "name": "b",
+          "type": "ReducerPath",
+          Symbol(reducer): true,
+        },
+      ],
+      "type": "ReducerList",
+      Symbol(reducer): true,
+    },
+  },
+  ReducerList {
+    "reducers": Array [
+      ReducerPath {
+        "asCollection": false,
+        "body": [Function],
+        "name": "a",
+        "type": "ReducerPath",
+        Symbol(reducer): true,
+      },
+      ReducerPath {
+        "asCollection": false,
+        "body": [Function],
+        "name": "b",
+        "type": "ReducerPath",
+        Symbol(reducer): true,
+      },
+    ],
+    "type": "ReducerList",
+    Symbol(reducer): true,
+  } => Object {
+    "parent": ReducerObject {
+      "reducers": Array [
+        Object {
+          "path": Array [
+            "a",
+          ],
+          "reducer": ReducerList {
+            "reducers": Array [
+              ReducerPath {
+                "asCollection": false,
+                "body": [Function],
+                "name": "a",
+                "type": "ReducerPath",
+                Symbol(reducer): true,
+              },
+              ReducerPath {
+                "asCollection": false,
+                "body": [Function],
+                "name": "b",
+                "type": "ReducerPath",
+                Symbol(reducer): true,
+              },
+            ],
+            "type": "ReducerList",
+            Symbol(reducer): true,
+          },
+        },
+        Object {
+          "path": Array [
+            "b",
+          ],
+          "reducer": ReducerFunction {
+            "body": [Function],
+            "type": "ReducerFunction",
+            Symbol(reducer): true,
+          },
+        },
+      ],
+      "source": [Function],
+      "type": "ReducerObject",
+      Symbol(reducer): true,
+    },
+  },
+  ReducerFunction {
+    "body": [Function],
+    "type": "ReducerFunction",
+    Symbol(reducer): true,
+  } => Object {
+    "parent": ReducerObject {
+      "reducers": Array [
+        Object {
+          "path": Array [
+            "a",
+          ],
+          "reducer": ReducerList {
+            "reducers": Array [
+              ReducerPath {
+                "asCollection": false,
+                "body": [Function],
+                "name": "a",
+                "type": "ReducerPath",
+                Symbol(reducer): true,
+              },
+              ReducerPath {
+                "asCollection": false,
+                "body": [Function],
+                "name": "b",
+                "type": "ReducerPath",
+                Symbol(reducer): true,
+              },
+            ],
+            "type": "ReducerList",
+            Symbol(reducer): true,
+          },
+        },
+        Object {
+          "path": Array [
+            "b",
+          ],
+          "reducer": ReducerFunction {
+            "body": [Function],
+            "type": "ReducerFunction",
+            Symbol(reducer): true,
+          },
+        },
+      ],
+      "source": [Function],
+      "type": "ReducerObject",
+      Symbol(reducer): true,
+    },
+  },
+  ReducerObject {
+    "reducers": Array [
+      Object {
+        "path": Array [
+          "a",
+        ],
+        "reducer": ReducerList {
+          "reducers": Array [
+            ReducerPath {
+              "asCollection": false,
+              "body": [Function],
+              "name": "a",
+              "type": "ReducerPath",
+              Symbol(reducer): true,
+            },
+            ReducerPath {
+              "asCollection": false,
+              "body": [Function],
+              "name": "b",
+              "type": "ReducerPath",
+              Symbol(reducer): true,
+            },
+          ],
+          "type": "ReducerList",
+          Symbol(reducer): true,
+        },
+      },
+      Object {
+        "path": Array [
+          "b",
+        ],
+        "reducer": ReducerFunction {
+          "body": [Function],
+          "type": "ReducerFunction",
+          Symbol(reducer): true,
+        },
+      },
+    ],
+    "source": [Function],
+    "type": "ReducerObject",
+    Symbol(reducer): true,
+  } => Object {
+    "parent": undefined,
+  },
+}
+`;

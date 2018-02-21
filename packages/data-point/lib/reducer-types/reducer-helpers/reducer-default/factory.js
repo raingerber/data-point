@@ -15,8 +15,11 @@ module.exports.name = HELPER_NAME
  * @param {*} value
  * @return {Reducer}
  */
-function create (createReducer, source, value, tree) {
-  return createReducer(source, { default: value, tree })
+function create (createReducer, source, value) {
+  // we do not pass the parent/id in the options,
+  // but the entry for this reducer in the tree
+  // will get overridden later
+  return createReducer(source, { default: value })
 }
 
 module.exports.create = create

@@ -21,13 +21,11 @@ module.exports.Constructor = ReducerConstant
 /**
  * @param {Function} createReducer
  * @param {*} value
- * @param {Map} tree
  * @return {ReducerConstant}
  */
-function create (createReducer, value, tree) {
+function create (createReducer, value) {
   const reducer = new ReducerConstant()
   reducer.value = value
-
   return reducer
 }
 

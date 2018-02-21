@@ -12,12 +12,11 @@ module.exports.EntityEntry = EntityEntry
  * Creates new Entity Object
  * @param {Object} spec
  * @param {string} entityId
- * @param {Map} tree
  * @return {EntityEntry} Entity Object
  */
-function create (spec, entityId, tree) {
+function create (spec, entityId) {
   validateModifiers(entityId, spec, [])
-  const entity = createBaseEntity(EntityEntry, spec, entityId, tree)
+  const entity = createBaseEntity(EntityEntry, spec, entityId)
   return Object.freeze(entity)
 }
 

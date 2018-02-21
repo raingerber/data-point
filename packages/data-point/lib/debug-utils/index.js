@@ -1,11 +1,11 @@
 /**
  * @param {Reducer} parent
- * @param {string} id
+ * @param {string|number} id
  * @return {Object}
  */
 function createNode (parent, id) {
   const node = { parent }
-  if (id) {
+  if (id || id === 0) {
     node.id = id
   }
 

@@ -1,7 +1,5 @@
 const _ = require('lodash')
 
-const { createNode } = require('../../debug-utils')
-
 const REDUCER_OBJECT = 'ReducerObject'
 
 module.exports.type = REDUCER_OBJECT
@@ -60,7 +58,8 @@ function getProps (createReducer, source, stack = [], props = newProps()) {
       continue
     }
 
-    const reducer = createReducer(value) // TODO { tree }
+    // TODO do not add a mapping for constants
+    const reducer = createReducer(value)
     if (reducer.type === 'ReducerConstant') {
       _.set(props.constants, path, reducer.value)
     } else {
@@ -88,21 +87,17 @@ module.exports.getSourceFunction = getSourceFunction
 /**
  * @param {Function} createReducer
  * @param {Object} source
- * @param {Map} tree
  * @returns {Reducer}
  */
-function create (createReducer, source = {}, tree) {
-  const props = getProps(createReducer, source)
-
+function create (createReducer, source = {}) {
   const reducer = new ReducerObject()
+  const _createReducer = (source, id) => {
+    return createReducer(source, { parent: reducer, id })
+  }
+
+  const props = getProps(_createReducer, source)
   reducer.source = getSourceFunction(props.constants)
   reducer.reducers = props.reducers
-
-  tree &&
-    props.reducers.forEach(prop => {
-      tree.set(prop.reducer, createNode(reducer, prop.path))
-    })
-
   return reducer
 }
 

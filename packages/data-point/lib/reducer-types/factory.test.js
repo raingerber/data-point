@@ -72,3 +72,15 @@ describe('reducer#isReducer', () => {
     expect(testIsReducer(stubFactories.pick('$a'))).toBe(true)
   })
 })
+
+describe('reducer#createDebug', () => {
+  test('', () => {
+    const reducer = Factory.createDebug({
+      a: ['$a', '$b'],
+      b: () => ({
+        a: 1
+      })
+    })
+    expect(reducer).toMatchSnapshot()
+  })
+})

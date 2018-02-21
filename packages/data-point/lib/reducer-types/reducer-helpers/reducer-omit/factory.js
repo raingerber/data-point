@@ -21,10 +21,9 @@ module.exports.Constructor = ReducerOmit
 /**
  * @param {Function} createReducer
  * @param {Array<string>} keys
- * @param {Map} tree
  * @return {ReducerOmit}
  */
-function create (createReducer, keys, tree) {
+function create (createReducer, keys) {
   const reducer = new ReducerOmit()
   reducer.keys = Object.freeze(keys.slice(0))
   return reducer

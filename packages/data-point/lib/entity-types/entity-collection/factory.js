@@ -24,26 +24,24 @@ const modifiers = {
 
 /**
  * @param {Array<Object>} composeSpec
- * @param {Map} tree
  * @return {Reducer}
  */
-function createCompose (composeSpec, tree) {
+function createCompose (composeSpec) {
   const stubs = composeSpec.map(modifier => {
     const factory = modifiers[modifier.type]
     return factory(modifier.spec)
   })
 
-  return createReducer(stubs, { tree })
+  return createReducer(stubs)
 }
 
 /**
  * Creates new Entity Object
  * @param {Object} spec
  * @param {string} entityId
- * @param {Map} tree
  * @return {EntityCollection} Entity Object
  */
-function create (spec, entityId, tree) {
+function create (spec, entityId) {
   validateModifiers(entityId, spec, modifierKeys.concat('compose'))
   parseCompose.validateComposeModifiers(entityId, spec, modifierKeys)
 
@@ -54,12 +52,12 @@ function create (spec, entityId, tree) {
   )
   spec = Object.assign({}, spec, { outputType })
 
-  const entity = createBaseEntity(EntityCollection, spec, entityId, tree)
+  const entity = createBaseEntity(EntityCollection, spec, entityId)
 
   const composeSpec = parseCompose.parse(spec, modifierKeys)
   parseCompose.validateCompose(entity.id, composeSpec, modifierKeys)
   if (composeSpec.length) {
-    entity.compose = createCompose(composeSpec, tree)
+    entity.compose = createCompose(composeSpec)
   }
 
   return Object.freeze(entity)

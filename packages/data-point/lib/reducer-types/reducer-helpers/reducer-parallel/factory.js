@@ -1,5 +1,3 @@
-const { createNode } = require('../../../debug-utils')
-
 const REDUCER_PARALLEL = 'ReducerParallel'
 
 module.exports.type = REDUCER_PARALLEL
@@ -23,21 +21,15 @@ module.exports.Constructor = ReducerParallel
 /**
  * @param {Function} createReducer
  * @param {Array} source
- * @param {Map} tree
  * @return {Reducer}
  */
-function create (createReducer, source, tree) {
-  const reducers = source.map(token => {
-    return createReducer(token, { tree })
+function create (createReducer, source) {
+  const reducer = new ReducerParallel()
+  const reducers = source.map((token, index) => {
+    return createReducer(token, { parent: reducer, id: index })
   })
 
-  const reducer = new ReducerParallel()
   reducer.reducers = reducers
-  tree &&
-    reducers.forEach((r, index) => {
-      tree.set(r, createNode(reducer, index))
-    })
-
   return reducer
 }
 

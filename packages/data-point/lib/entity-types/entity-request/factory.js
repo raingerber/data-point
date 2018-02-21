@@ -28,14 +28,13 @@ module.exports.defaultOptions = defaultOptions
  * creates new Request based on spec
  * @param {Object} spec
  * @param {string} entityId
- * @param {Map} tree
  * @return {EntityRequest} Entity Object
  */
-function create (spec, entityId, tree) {
+function create (spec, entityId) {
   validateModifiers(entityId, spec, ['options', 'url'])
-  const entity = createBaseEntity(EntityRequest, spec, entityId, tree)
+  const entity = createBaseEntity(EntityRequest, spec, entityId)
   entity.url = _.defaultTo(spec.url, '')
-  entity.options = createReducer(spec.options || defaultOptions, { tree })
+  entity.options = createReducer(spec.options || defaultOptions)
 
   return Object.freeze(entity)
 }

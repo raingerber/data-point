@@ -42,13 +42,12 @@ module.exports.validateSchema = validateSchema
  * Creates new Entity Object
  * @param {Object} spec
  * @param {string} entityId
- * @param {Map} tree
  * @throws if spec.schema is not a valid ajv schema
  * @return {EntitySchema} Entity Object
  */
-function create (spec, entityId, tree) {
+function create (spec, entityId) {
   validateModifiers(entityId, spec, ['schema', 'options'])
-  const entity = createBaseEntity(EntitySchema, spec, entityId, tree)
+  const entity = createBaseEntity(EntitySchema, spec, entityId)
   entity.schema = deepFreeze(_.defaultTo(spec.schema, {}))
   entity.options = deepFreeze(_.defaultTo(spec.options, {}))
   validateSchema(entity.schema, entity.options)
