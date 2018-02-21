@@ -4,7 +4,6 @@ const resolveReducer = require('../reducer-types').resolve
 const AccumulatorFactory = require('../accumulator/factory')
 
 const { stubFactories } = require('../reducer-types/reducer-helpers')
-const typeCheckFunctionReducers = require('./type-check-functions')
 
 module.exports.helpers = {
   assign: stubFactories.assign,
@@ -15,23 +14,20 @@ module.exports.helpers = {
   omit: stubFactories.omit,
   parallel: stubFactories.parallel,
   pick: stubFactories.pick,
-  withDefault: stubFactories.withDefault,
-  isString: typeCheckFunctionReducers.isString,
-  isNumber: typeCheckFunctionReducers.isNumber,
-  isBoolean: typeCheckFunctionReducers.isBoolean,
-  isFunction: typeCheckFunctionReducers.isFunction,
-  isError: typeCheckFunctionReducers.isError,
-  isArray: typeCheckFunctionReducers.isArray,
-  isObject: typeCheckFunctionReducers.isObject
+  withDefault: stubFactories.withDefault
 }
 
-module.exports.isReducer = require('../reducer-types').isReducer
+const createReducer = require('../reducer-types').create
 
-module.exports.createReducer = require('../reducer-types').create
+module.exports.createReducer = createReducer
 
-module.exports.createEntity = require('../entity-types/base-entity').create
+const createEntity = require('../entity-types/base-entity').create
+
+module.exports.createEntity = _.partial(createEntity, createReducer)
 
 module.exports.resolveEntity = require('../entity-types/base-entity/resolve').resolve
+
+module.exports.isReducer = require('../reducer-types').isReducer
 
 module.exports.validateEntityModifiers = require('../entity-types/validate-modifiers').validateModifiers
 

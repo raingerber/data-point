@@ -29,18 +29,48 @@ function addToStore (store, items, override) {
 }
 
 /**
- * setup store
+ * @param {Object} manager
+ * @param {Object} entities
+ * @return {Object}
  */
-function addEntitiesToStore (store, entities) {
+function addEntitiesToStore (manager, entities) {
+  const store = manager.entities
   const entitySpecs = _.defaultTo(entities, {})
   const specs = normalizeEntities.normalize(entitySpecs)
   _.forOwn(specs, specItem => {
     store.add(specItem.id, specItem.spec)
   })
 
+  validateEntities(store.store, manager.tree)
   return store
 }
 
+/**
+ * @param {Map} store
+ * @param {Map} tree
+ * @throws if the tree contains references to non-existent entities
+ * @return {boolean}
+ */
+function validateEntities (store, tree) {
+  const invalidEntities = [...tree.entries()].reduce((acc, [reducer]) => {
+    if (reducer.type === 'ReducerEntity' && !store.get(reducer.id)) {
+      acc.push(`The "${reducer.id}" entity is not defined!`)
+    }
+
+    return acc
+  }, [])
+
+  if (invalidEntities.length) {
+    throw new Error(`Invalid entity references!\n${invalidEntities.join('\n')}`)
+  }
+
+  return true
+}
+
+/**
+ * @param {Object} spec
+ * @return {Object}
+ */
 function create (spec) {
   const options = _.defaultTo(spec, {
     values: {},
@@ -51,11 +81,15 @@ function create (spec) {
 
   const entityTypes = storeEntityTypes.create()
 
+  // stores parent/child metadata for entities and reducers
+  const tree = new Map()
+
   const manager = {
     middleware: storeMiddleware.create(),
     values: storeValues.create(),
-    entities: storeEntities.create(entityTypes),
-    entityTypes
+    entities: storeEntities.create(entityTypes, tree),
+    entityTypes,
+    tree
   }
 
   // add single item (singular)
@@ -68,7 +102,7 @@ function create (spec) {
   manager.use = manager.middleware.use
 
   // add collection of items (plural)
-  manager.addEntities = _.partial(addEntitiesToStore, manager.entities)
+  manager.addEntities = _.partial(addEntitiesToStore, manager)
 
   // built-in entity types
   manager.addEntityType('reducer', EntityTransform)

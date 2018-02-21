@@ -3,7 +3,7 @@ const attempt = require('lodash/attempt')
 
 const utils = require('../utils')
 const Symbols = require('./reducer-symbols')
-const { createNode } = require('../debug-utils')
+const { createTreeNode } = require('../debug-utils')
 const ReducerEntity = require('./reducer-entity')
 const ReducerFunction = require('./reducer-function')
 const ReducerHelpers = require('./reducer-helpers')
@@ -66,9 +66,8 @@ function createReducer (source, options = {}) {
     throw new Error(message)
   }
 
-  const create = options.create || createReducer
   // NOTE: recursive call
-  const reducer = reducerType.create(create, source)
+  const reducer = reducerType.create(options.create || createReducer, source)
   if (options.hasOwnProperty('default')) {
     reducer[Symbols.DEFAULT_VALUE] = { value: options.default }
   }
@@ -80,21 +79,28 @@ function createReducer (source, options = {}) {
 module.exports.create = createReducer
 
 /**
- * @param {*} source
- * @return {Object}
+ * @param {Map} tree
+ * @return {Function}
  */
-function createDebug (source) {
-  const tree = new WeakMap()
+function getCreate (tree) {
+  if (!tree) {
+    return createReducer
+  }
+
+  /**
+   * @param {*} source
+   * @param {Object} options
+   * @return {Reducer}
+   */
   const create = (source, options) => {
     options = utils.assign(options, { create })
     const reducer = createReducer(source, options)
-    const node = createNode(options.parent, options.id)
+    const node = createTreeNode(options.parent, options.id)
     tree.set(reducer, node)
     return reducer
   }
 
-  const reducer = create(source)
-  return { reducer, tree }
+  return create
 }
 
-module.exports.createDebug = createDebug
+module.exports.getCreate = getCreate

@@ -58,7 +58,7 @@ function getProps (createReducer, source, stack = [], props = newProps()) {
       continue
     }
 
-    // TODO do not add a mapping for constants
+    // TODO do not add a mapping for constants (although they should get cleaned up by GC because of the weakmap)
     const reducer = createReducer(value, path)
     if (reducer.type === 'ReducerConstant') {
       _.set(props.constants, path, reducer.value)

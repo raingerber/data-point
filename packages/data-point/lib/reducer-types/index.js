@@ -2,7 +2,7 @@
 
 module.exports = {
   create: require('./factory').create,
-  createDebug: require('./factory').createDebug,
+  getCreate: require('./factory').getCreate,
   isReducer: require('./factory').isReducer,
   resolve: require('./resolve').resolve
 }

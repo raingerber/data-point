@@ -2,10 +2,10 @@
 
 const debugUtils = require('./index')
 
-describe('debugUtils#createNode', () => {
+describe('debugUtils#createTreeNode', () => {
   it('should create a node without id', () => {
     const parent = {}
-    const node = debugUtils.createNode(parent)
+    const node = debugUtils.createTreeNode(parent)
     expect(node.parent === parent).toBe(true)
     expect(node).toEqual({ parent })
   })
@@ -13,7 +13,7 @@ describe('debugUtils#createNode', () => {
   it('should create a node with id', () => {
     const parent = {}
     const id = 'test-id'
-    const node = debugUtils.createNode(parent, id)
+    const node = debugUtils.createTreeNode(parent, id)
     expect(node.parent === parent).toBe(true)
     expect(node).toEqual({ parent, id })
   })

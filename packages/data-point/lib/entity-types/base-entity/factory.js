@@ -1,14 +1,14 @@
 const deepFreeze = require('deep-freeze')
 
 const { normalizeTypeCheckSource } = require('../../helpers/type-check-helpers')
-const createReducer = require('../../reducer-types').create
 
 /**
+ * @param {Function} createReducer
  * @param {Function} Factory - factory function to create the entity
  * @param {Object} spec
  * @param {string} entityId
  */
-function create (Factory, spec, entityId) {
+function create (createReducer, Factory, spec, entityId) {
   const entity = new Factory(spec)
 
   entity.id = entityId

@@ -3,7 +3,7 @@
  * @param {String|Number} id
  * @return {Object}
  */
-function createNode (parent, id) {
+function createTreeNode (parent, id) {
   const node = { parent }
   if (id || id === 0) {
     node.id = id
@@ -12,4 +12,4 @@ function createNode (parent, id) {
   return node
 }
 
-module.exports.createNode = createNode
+module.exports.createTreeNode = createTreeNode

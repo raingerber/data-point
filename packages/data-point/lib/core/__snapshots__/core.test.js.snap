@@ -6,6 +6,7 @@ Array [
   "values",
   "entities",
   "entityTypes",
+  "tree",
   "addValue",
   "addEntityType",
   "addEntityTypes",

@@ -1,7 +1,7 @@
-const createReducer = require('../../reducer-types').create
 const deepFreeze = require('deep-freeze')
 const constant = require('lodash/constant')
 const defaultTo = require('lodash/defaultTo')
+
 const reducerHelpers = require('../../reducer-types/reducer-helpers')
 const parseCompose = require('../parse-compose')
 const createBaseEntity = require('../base-entity').create
@@ -27,11 +27,12 @@ const modifiers = {
 }
 
 /**
+ * @param {Function} createReducer
  * @param {Array<Object>} composeSpec
  * @param {String} id
  * @return {Reducer}
  */
-function createCompose (composeSpec, id) {
+function createCompose (createReducer, composeSpec, id) {
   const specList = composeSpec.map(modifier => {
     let spec
     switch (modifier.type) {
@@ -61,13 +62,13 @@ function createCompose (composeSpec, id) {
 
 /**
  * Creates new Entity Object
- * @param  {Object} spec - spec
+ * @param {Function} createReducer
+ * @param {Object} spec - spec
  * @param {string} id - Entity id
  * @return {EntityHash} Entity Object
  */
-function create (spec, id) {
+function create (createReducer, spec, id) {
   validateModifiers(id, spec, modifierKeys.concat('compose'))
-  parseCompose.validateComposeModifiers(id, spec, modifierKeys)
 
   const outputType = getTypeCheckSourceWithDefault(
     'hash',
@@ -76,12 +77,10 @@ function create (spec, id) {
   )
   spec = Object.assign({}, spec, { outputType })
 
-  const entity = createBaseEntity(EntityHash, spec, id)
-
-  const compose = parseCompose.parse(spec, modifierKeys)
-  parseCompose.validateCompose(entity.id, compose, modifierKeys)
+  const entity = createBaseEntity(createReducer, EntityHash, spec, id)
+  const compose = parseCompose.parse(id, modifierKeys, spec)
   if (compose.length) {
-    entity.compose = createCompose(compose, id)
+    entity.compose = createCompose(createReducer, compose, id)
   }
 
   return Object.freeze(entity)
