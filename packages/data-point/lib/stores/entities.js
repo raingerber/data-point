@@ -4,7 +4,7 @@ const storeManager = require('./store-manager')
 /**
  * parse reducer
  * @param  {string} reducerRaw raw reducer path
- * @return {reducer}
+ * @return {Reducer}
  */
 function createEntity (entityTypes, source, id) {
   const tokens = id.split(':')

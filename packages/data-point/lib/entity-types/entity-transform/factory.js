@@ -11,15 +11,17 @@ module.exports.EntityTransform = EntityTransform
  * Creates new Entity Object
  * @param  {*} spec - spec
  * @param {string} id - Entity id
+ * @param {Map} tree
  * @return {EntityTransform} Entity Object
  */
-function create (spec, id) {
+function create (spec, id, tree) {
   const entity = createBaseEntity(
     EntityTransform,
     {
       value: spec
     },
-    id
+    id,
+    tree
   )
   return Object.freeze(entity)
 }

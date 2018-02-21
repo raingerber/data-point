@@ -47,10 +47,12 @@ function dealWithPipeOperators (source) {
 /**
  * parse reducer
  * @param {*} source
+ * @param {Function} create // TODO remove this
+ * @param {Map} tree
  * @throws if source is not a valid type for creating a reducer
  * @return {reducer}
  */
-function createReducer (source) {
+function createReducer (source, create = createReducer, tree) {
   source = dealWithPipeOperators(source)
   const reducerType = reducerTypes.find(r => r.isType(source))
 
@@ -67,9 +69,31 @@ function createReducer (source) {
   }
 
   // NOTE: recursive call
-  const reducer = reducerType.create(createReducer, source)
+  const reducer = reducerType.create(create, source, tree)
   reducer[REDUCER_SYMBOL] = true
+
   return Object.freeze(reducer)
 }
 
 module.exports.create = createReducer
+
+function createDebugHelper (tree) {
+  // let uid = 0
+  const create = source => {
+    const reducer = createReducer(source, create, tree)
+    // reducer[uid] = uid++
+    return reducer
+  }
+
+  return create
+}
+
+module.exports.createDebugHelper = createDebugHelper
+
+function createDebug (source) {
+  const tree = new Map()
+  const reducer = createDebugHelper(tree)(source)
+  return { reducer, tree }
+}
+
+module.exports.createDebug = createDebug

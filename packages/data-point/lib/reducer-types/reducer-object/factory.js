@@ -1,5 +1,7 @@
 const _ = require('lodash')
 
+const { createNode } = require('../../debug-utils')
+
 const REDUCER_OBJECT = 'ReducerObject'
 
 module.exports.type = REDUCER_OBJECT
@@ -87,15 +89,21 @@ module.exports.getSourceFunction = getSourceFunction
 /**
  * @param {Function} createReducer
  * @param {Object} source
- * @returns {reducer}
+ * @param {Map} tree
+ * @returns {Reducer}
  */
-function create (createReducer, source = {}) {
+function create (createReducer, source = {}, tree) {
   const props = getProps(createReducer, source)
 
   const reducer = new ReducerObject()
   reducer.isEmpty = _.isEmpty(props.constants) && _.isEmpty(props.reducers)
   reducer.source = getSourceFunction(props.constants)
   reducer.reducers = props.reducers
+
+  tree &&
+    props.reducers.forEach(prop => {
+      tree.set(prop.reducer, createNode(reducer, prop.path))
+    })
 
   return reducer
 }

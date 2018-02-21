@@ -14,6 +14,11 @@ module.exports.getStack = getStack
 
 function executeStack (stack, middlewareName, accumulator) {
   const middlewareStack = getStack(stack, middlewareName)
+  // if (middlewareStack.length) {
+
+  // }
+
+  // return Promise.
   return middlewareControl(accumulator, middlewareStack)
 }
 

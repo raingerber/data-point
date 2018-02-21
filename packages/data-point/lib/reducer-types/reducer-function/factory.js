@@ -50,9 +50,10 @@ module.exports.validateFunction = validateFunction
 /**
  * @param {Function} createReducer
  * @param {Function} source
- * @return {reducer}
+ * @param {Map} tree
+ * @return {Reducer}
  */
-function create (createReducer, source) {
+function create (createReducer, source, tree) {
   validateFunction(source)
   const reducer = new ReducerFunction()
   // if the arity is 3, we expect a Node Style

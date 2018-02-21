@@ -37,9 +37,10 @@ module.exports.isType = isType
 /**
  * @param {Function} createReducer
  * @param {string} source
+ * @param {Map} tree
  * @return {reducer}
  */
-function create (createReducer, source) {
+function create (createReducer, source, tree) {
   const reducer = new ReducerEntity()
   const tokens = source.split(':')
 

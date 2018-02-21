@@ -23,7 +23,13 @@ const modifiers = {
   assign: reducerHelpers.stubFactories.assign
 }
 
-function createCompose (composeParse) {
+/**
+ *
+ * @param {Array} composeParse
+ * @param {Map} tree
+ * @return {Reducer}
+ */
+function createCompose (composeParse, tree) {
   const specList = composeParse.map(modifier => {
     let spec
     switch (modifier.type) {
@@ -48,24 +54,25 @@ function createCompose (composeParse) {
     return spec
   })
 
-  return createReducer(specList)
+  return createReducer(specList, tree)
 }
 
 /**
  * Creates new Entity Object
  * @param  {Object} spec - spec
  * @param {string} id - Entity id
+ * @param {Map} tree
  * @return {EntityHash} Entity Object
  */
-function create (spec, id) {
+function create (spec, id, tree) {
   validateModifiers(id, spec, modifierKeys.concat('compose'))
   parseCompose.validateComposeModifiers(id, spec, modifierKeys)
 
-  const entity = createBaseEntity(EntityHash, spec, id)
+  const entity = createBaseEntity(EntityHash, spec, id, tree)
 
   const compose = parseCompose.parse(spec, modifierKeys)
   parseCompose.validateCompose(entity.id, compose, modifierKeys)
-  entity.compose = createCompose(compose)
+  entity.compose = createCompose(compose, tree)
 
   return Object.freeze(entity)
 }

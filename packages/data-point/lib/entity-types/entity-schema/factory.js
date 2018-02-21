@@ -42,6 +42,7 @@ module.exports.validateSchema = validateSchema
  * Creates new Entity Object
  * @param {Object} spec - spec
  * @param {string} id - Entity id
+ * @param {Map} tree
  * @throws if spec.schema is not a valid ajv schema
  * @return {EntitySchema} Entity Object
  */

@@ -1,5 +1,7 @@
 const _ = require('lodash')
 
+const { createNode } = require('../../debug-utils')
+
 const REDUCER_LIST = 'ReducerList'
 
 module.exports.type = REDUCER_LIST
@@ -77,15 +79,21 @@ module.exports.parse = parse
 /**
  * @param {Function} createReducer
  * @param {Array} source
- * @return {reducer}
+ * @param {Map} tree
+ * @return {Reducer}
  */
-function create (createReducer, source = []) {
+function create (createReducer, source = [], tree) {
   const tokens = parse(source)
   const reducers = tokens.map(token => createReducer(token))
 
   const reducer = new ReducerList()
   reducer.isEmpty = _.isEmpty(reducers)
   reducer.reducers = reducers
+
+  tree &&
+    reducers.forEach((r, index) => {
+      tree.set(r, createNode(reducer, index))
+    })
 
   return reducer
 }

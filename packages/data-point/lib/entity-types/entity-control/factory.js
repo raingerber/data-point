@@ -15,27 +15,29 @@ module.exports.EntityControl = EntityControl
 
 /**
  * map each key from spec into a reducer
- *
- * @param {hash} spec - key/value where each value will be mapped into a reducer
+ * @param {Object} statement - each value will be mapped into a reducer
+ *                             the keys should be "case" and "do"
+ * @param {Map} tree
  * @returns
  */
-function parseCaseStatement (spec) {
-  return _.mapValues(spec, createReducer)
+function parseCaseStatement (statement, tree) {
+  return _.mapValues(statement, source => createReducer(source, tree))
 }
+
 module.exports.parseCaseStatement = parseCaseStatement
 
 /**
  * Parse only case statements
- *
  * @param {hash} spec - key/value where each value will be mapped into a reducer
+ * @param {Map} tree
  * @returns
  */
-function parseCaseStatements (spec) {
-  return _(spec)
-    .remove(statement => !_.isUndefined(statement.case))
-    .map(parseCaseStatement)
-    .value()
+function parseCaseStatements (spec, tree) {
+  return spec
+    .filter(statement => !statement.case)
+    .map(statement => parseCaseStatement(statement, tree))
 }
+
 module.exports.parseCaseStatements = parseCaseStatements
 
 function parseDefaultStatement (id, select) {
@@ -49,32 +51,34 @@ function parseDefaultStatement (id, select) {
   }
   return defaultCase.default
 }
+
 /**
- * parse spec
- *
- * @param {any} spec
+ * @param {Object} spec
+ * @param {Map} tree
  * @returns
  */
-function parseSwitch (spec) {
+function parseSwitch (spec, tree) {
   const select = spec.select
   const defaultStatement = parseDefaultStatement(spec.id, select)
   return {
-    cases: parseCaseStatements(select),
-    default: createReducer(defaultStatement)
+    cases: parseCaseStatements(select, tree),
+    default: createReducer(defaultStatement, tree)
   }
 }
+
 module.exports.parseSwitch = parseSwitch
 
 /**
  * Creates new Entity Object
  * @param  {Object} spec - spec
  * @param {string} id - Entity id
+ * @param {Map} tree
  * @return {EntityControl} Entity Object
  */
-function create (spec, id) {
+function create (spec, id, tree) {
   validateModifiers(id, spec, ['select'])
-  const entity = createBaseEntity(EntityControl, spec, id)
-  entity.select = parseSwitch(spec)
+  const entity = createBaseEntity(EntityControl, spec, id, tree)
+  entity.select = parseSwitch(spec, tree)
   return Object.freeze(entity)
 }
 

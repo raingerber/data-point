@@ -1,3 +1,5 @@
+const { createNode } = require('../../../debug-utils')
+
 const REDUCER_ASSIGN = 'ReducerAssign'
 
 module.exports.type = REDUCER_ASSIGN
@@ -9,7 +11,7 @@ module.exports.name = HELPER_NAME
 /**
  * @class
  * @property {string} type
- * @property {reducer} reducer
+ * @property {Reducer} reducer
  */
 function ReducerAssign () {
   this.type = REDUCER_ASSIGN
@@ -21,11 +23,14 @@ module.exports.ReducerAssign = ReducerAssign
 /**
  * @param {Function} createReducer
  * @param {*} source - raw source for a reducer
+ * @param {Map} tree
  * @return {ReducerAssign}
  */
-function create (createReducer, source) {
+function create (createReducer, source, tree) {
   const reducer = new ReducerAssign()
   reducer.reducer = createReducer(source)
+  tree && tree.set(reducer.reducer, createNode(reducer))
+
   return reducer
 }
 

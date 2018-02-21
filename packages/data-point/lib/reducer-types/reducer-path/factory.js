@@ -102,9 +102,10 @@ module.exports.getPathReducerFunction = getPathReducerFunction
 /**
  * @param {Function} createReducer
  * @param {string} source
- * @return {reducer}
+ * @param {Map} tree
+ * @return {Reducer}
  */
-function create (createReducer, source) {
+function create (createReducer, source, tree) {
   const reducer = new ReducerPath()
 
   reducer.asCollection = source.slice(-2) === '[]'
