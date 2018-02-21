@@ -3,8 +3,8 @@ const utils = require('../../utils')
 
 /**
  * parse reducer
- * @param  {Entity} entitySpec user defined entity
- * @return {reducer}
+ * @param {Entity} entitySpec user defined entity
+ * @return {Reducer}
  */
 function create (entitySpec, id) {
   if (!_.isFunction(entitySpec.create)) {

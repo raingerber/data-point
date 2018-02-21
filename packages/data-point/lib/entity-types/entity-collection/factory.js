@@ -38,14 +38,14 @@ function createCompose (composeSpec, tree) {
 
 /**
  * Creates new Entity Object
- * @param {Object} spec - spec
- * @param {string} id - Entity id
+ * @param {Object} spec
+ * @param {string} entityId
  * @param {Map} tree
  * @return {EntityCollection} Entity Object
  */
-function create (spec, id, tree) {
-  validateModifiers(id, spec, modifierKeys.concat('compose'))
-  parseCompose.validateComposeModifiers(id, spec, modifierKeys)
+function create (spec, entityId, tree) {
+  validateModifiers(entityId, spec, modifierKeys.concat('compose'))
+  parseCompose.validateComposeModifiers(entityId, spec, modifierKeys)
 
   const outputType = getTypeCheckSourceWithDefault(
     'collection',
@@ -54,7 +54,7 @@ function create (spec, id, tree) {
   )
   spec = Object.assign({}, spec, { outputType })
 
-  const entity = createBaseEntity(EntityCollection, spec, id, tree)
+  const entity = createBaseEntity(EntityCollection, spec, entityId, tree)
 
   const composeSpec = parseCompose.parse(spec, modifierKeys)
   parseCompose.validateCompose(entity.id, composeSpec, modifierKeys)

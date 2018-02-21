@@ -90,9 +90,10 @@ function create (createReducer, source, tree) {
   const reducer = new ReducerList()
   reducer.reducers = reducers
 
-  tree && reducers.forEach((r, index) => {
-    tree.set(r, createNode(reducer, index))
-  })
+  tree &&
+    reducers.forEach((r, index) => {
+      tree.set(r, createNode(reducer, index))
+    })
 
   return reducer
 }

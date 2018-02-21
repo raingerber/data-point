@@ -2,7 +2,6 @@ const _ = require('lodash')
 const middlewareFactory = require('../middleware')
 
 function clear (manager) {
-  /* eslint no-param-reassign: "off" */
   manager.stack = []
   return manager
 }

@@ -10,7 +10,7 @@ const utils = require('../../utils')
  * @param {Error} error
  * @param {Accumulator} accumulator
  * @param {Function} resolveReducer
- * @returns {Promise<Accumulator>}
+ * @return {Promise<Accumulator>}
  */
 function resolveErrorReducers (manager, error, accumulator, resolveReducer) {
   const errorReducer = accumulator.reducer.spec.error
@@ -37,7 +37,7 @@ module.exports.resolveErrorReducers = resolveErrorReducers
  * @param {Object} manager
  * @param {Accumulator} accumulator
  * @param {Function} reducer
- * @returns {Accumulator}
+ * @return {Accumulator}
  */
 function createCurrentAccumulator (manager, accumulator, reducer) {
   // get defined source
@@ -109,7 +109,7 @@ function typeCheck (manager, acc, reducer, resolveReducer) {
  * @param {Accumulator} accumulator
  * @param {Function} reducer
  * @param {Function} mainResolver
- * @returns {Promise<Accumulator>}
+ * @return {Promise<Accumulator>}
  */
 function resolveEntity (
   manager,
@@ -194,7 +194,7 @@ module.exports.resolveEntity = resolveEntity
  * @param {Accumulator} accumulator
  * @param {Function} reducer
  * @param {Function} mainResolver
- * @returns {Promise<Accumulator>}
+ * @return {Promise<Accumulator>}
  */
 function resolve (manager, resolveReducer, accumulator, reducer, mainResolver) {
   const hasEmptyConditional = reducer.hasEmptyConditional

@@ -1,8 +1,8 @@
 const util = require('util')
 const attempt = require('lodash/attempt')
 
-const { IS_REDUCER, DEFAULT_VALUE } = require('./reducer-symbols')
-
+const utils = require('../utils')
+const Symbols = require('./reducer-symbols')
 const ReducerEntity = require('./reducer-entity')
 const ReducerFunction = require('./reducer-function')
 const ReducerHelpers = require('./reducer-helpers')
@@ -24,7 +24,7 @@ const reducerTypes = [
  * @returns {boolean}
  */
 function isReducer (item) {
-  return !!(item && item[IS_REDUCER])
+  return !!(item && item[Symbols.IS_REDUCER])
 }
 
 module.exports.isReducer = isReducer
@@ -44,13 +44,6 @@ function normalizeInput (source) {
   return result
 }
 
-// * @param {Function} create // TODO remove this
-// * @param {Map} tree
-// * @throws if source is not a valid type for creating a reducer
-// * @return {Reducer}
-// */
-// function createReducer (source, create = createReducer, tree) {
-//  source = dealWithPipeOperators(source)
 /**
  * @param {*} source
  * @param {Object} options
@@ -62,7 +55,7 @@ function normalizeInput (source) {
 function createReducer (source, options = {}) {
   source = normalizeInput(source)
   const reducerType = reducerTypes.find(r => r.isType(source))
-  if (reducerType === undefined) {
+  if (typeof reducerType === 'undefined') {
     const message = [
       'Invalid reducer type.',
       ' Could not find a matching reducer type while parsing the value:\n ',
@@ -74,35 +67,31 @@ function createReducer (source, options = {}) {
     throw new Error(message)
   }
 
-  const create = options.createReducer || createReducer
+  const create = options.create || createReducer
   // NOTE: recursive call
   const reducer = reducerType.create(create, source, options.tree)
   if (options.hasOwnProperty('default')) {
-    reducer[DEFAULT_VALUE] = { value: options.default }
+    reducer[Symbols.DEFAULT_VALUE] = { value: options.default }
   }
 
-  reducer[IS_REDUCER] = true
+  reducer[Symbols.IS_REDUCER] = true
   return Object.freeze(reducer)
 }
 
 module.exports.create = createReducer
 
-function createDebugHelper (tree) {
-  // let uid = 0
-  const create = source => {
-    const reducer = createReducer(source, { create, tree })
-    // reducer[uid] = uid++
-    return reducer
+/**
+ * @param {*} source
+ * @return {Object}
+ */
+function createDebug (source) {
+  const create = (source, options) => {
+    options = utils.assign(options, { create })
+    return createReducer(source, options)
   }
 
-  return create
-}
-
-module.exports.createDebugHelper = createDebugHelper
-
-function createDebug (source) {
   const tree = new Map()
-  const reducer = createDebugHelper(tree)(source)
+  const reducer = create(source, { tree })
   return { reducer, tree }
 }
 

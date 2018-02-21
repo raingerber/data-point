@@ -1,7 +1,7 @@
 const ObjectStoreManager = require('./object-store-manager')
 
 /**
- * @param  {string} id
+ * @param {string} id
  * @return {Object} Error Object properties
  */
 function errorInfoCbGet (path) {
@@ -12,7 +12,7 @@ function errorInfoCbGet (path) {
 }
 
 /**
- * @param  {string} id
+ * @param {string} id
  * @return {Object} Error Object properties
  */
 function errorInfoCbAdd (path) {

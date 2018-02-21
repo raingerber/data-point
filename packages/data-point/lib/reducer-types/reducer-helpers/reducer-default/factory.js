@@ -13,7 +13,7 @@ module.exports.name = HELPER_NAME
  * @param {Function} createReducer
  * @param {*} source - raw source for a reducer
  * @param {*} value
- * @return {reducer}
+ * @return {Reducer}
  */
 function create (createReducer, source, value, tree) {
   return createReducer(source, { default: value, tree })

@@ -7,16 +7,17 @@ const { createNode } = require('../../debug-utils')
 
 /**
  * @param {Function} Factory - factory function to create the entity
- * @param {Object} spec - spec for the Entity
- * @param {string} id - Entity's id
+ * @param {Object} spec
+ * @param {string} entityId
  * @param {Map} tree
  */
-function create (Factory, spec, id, { root, tree }) { // TODO what is root here
+function create (Factory, spec, entityId, tree) {
   const entity = new Factory(spec)
 
-  entity.id = id
+  entity.id = entityId
   if (tree) {
-    entity.root = tree ? createReducer(id, { tree }) : null
+    // TODO what is this for?
+    entity.root = createReducer(entityId, { tree })
   }
 
   if (spec.before) {

@@ -3,7 +3,7 @@ const storeManager = require('./store-manager')
 
 /**
  * parse reducer
- * @param  {string} reducerRaw raw reducer path
+ * @param {string} reducerRaw raw reducer path
  * @return {Reducer}
  */
 function createEntity (entityTypes, source, id) {
@@ -17,7 +17,7 @@ function createEntity (entityTypes, source, id) {
 module.exports.createEntity = createEntity
 
 /**
- * @param  {string} id
+ * @param {string} id
  * @return {Object} Error Object properties
  */
 function errorInfoCbGet (id) {
@@ -28,7 +28,7 @@ function errorInfoCbGet (id) {
 }
 
 /**
- * @param  {string} id
+ * @param {string} id
  * @return {Object} Error Object properties
  */
 function errorInfoCbAdd (id) {

@@ -6,7 +6,7 @@ const { validateModifiers } = require('../validate-modifiers')
 /**
  * @class
  * @property {string} url
- * @property {reducer} options
+ * @property {Reducer} options
  */
 function EntityRequest () {
   this.url = undefined
@@ -26,14 +26,14 @@ module.exports.defaultOptions = defaultOptions
 
 /**
  * creates new Request based on spec
- * @param {Object} spec - request spec
- * @param {string} id - Entity id
+ * @param {Object} spec
+ * @param {string} entityId
  * @param {Map} tree
  * @return {EntityRequest} Entity Object
  */
-function create (spec, id, tree) {
-  validateModifiers(id, spec, ['options', 'url'])
-  const entity = createBaseEntity(EntityRequest, spec, id, tree)
+function create (spec, entityId, tree) {
+  validateModifiers(entityId, spec, ['options', 'url'])
+  const entity = createBaseEntity(EntityRequest, spec, entityId, tree)
   entity.url = _.defaultTo(spec.url, '')
   entity.options = createReducer(spec.options || defaultOptions, { tree })
 

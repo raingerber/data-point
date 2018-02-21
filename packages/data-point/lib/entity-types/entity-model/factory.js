@@ -9,13 +9,13 @@ module.exports.EntityModel = EntityModel
 
 /**
  * Creates new Entity Object
- * @param  {Object} spec - spec
- * @param {string} id - Entity id
+ * @param {Object} spec
+ * @param {string} entityId
  * @param {Map} tree
  * @return {EntityModel} Entity Object
  */
-function create (spec, id, tree) {
-  const entity = createBaseEntity(EntityModel, spec, id, tree)
+function create (spec, entityId, tree) {
+  const entity = createBaseEntity(EntityModel, spec, entityId, tree)
   return Object.freeze(entity)
 }
 

@@ -17,7 +17,6 @@ module.exports.getStore = getStore
  * @return {Object}
  */
 function clear (manager) {
-  /* eslint no-param-reassign: "off" */
   manager.store = {}
   return manager
 }

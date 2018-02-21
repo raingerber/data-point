@@ -38,7 +38,7 @@ module.exports.isType = isType
  * @param {Function} createReducer
  * @param {string} source
  * @param {Map} tree
- * @return {reducer}
+ * @return {Reducer}
  */
 function create (createReducer, source, tree) {
   const reducer = new ReducerEntity()

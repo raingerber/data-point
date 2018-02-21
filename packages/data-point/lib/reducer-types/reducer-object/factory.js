@@ -98,9 +98,10 @@ function create (createReducer, source = {}, tree) {
   reducer.source = getSourceFunction(props.constants)
   reducer.reducers = props.reducers
 
-  tree && props.reducers.forEach(prop => {
-    tree.set(prop.reducer, createNode(reducer, prop.path))
-  })
+  tree &&
+    props.reducers.forEach(prop => {
+      tree.set(prop.reducer, createNode(reducer, prop.path))
+    })
 
   return reducer
 }

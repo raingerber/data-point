@@ -2,7 +2,7 @@ const createEntity = require('../entity-types/spec').create
 const storeManager = require('./store-manager')
 
 /**
- * @param  {string} id
+ * @param {string} id
  * @return {Object} Error Object properties
  */
 function errorInfoCbGet (id) {
@@ -13,7 +13,7 @@ function errorInfoCbGet (id) {
 }
 
 /**
- * @param  {string} id
+ * @param {string} id
  * @return {Object} Error Object properties
  */
 function errorInfoCbAdd (id) {

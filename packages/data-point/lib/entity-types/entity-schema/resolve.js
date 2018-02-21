@@ -22,11 +22,15 @@ function validateContext (acc) {
 
 module.exports.validateContext = validateContext
 
-function resolve (acc, resolveReducer) {
-  const value = acc.reducer.spec.value
-
-  return resolveReducer(acc, value).then(racc => {
-    return validateContext(racc)
+/**
+ * @param {Accumulator} accumulator
+ * @param {Function} resolveReducer
+ * @return {Promise}
+ */
+function resolve (accumulator, resolveReducer) {
+  const value = accumulator.reducer.spec.value
+  return resolveReducer(accumulator, value).then(acc => {
+    return validateContext(acc)
   })
 }
 
