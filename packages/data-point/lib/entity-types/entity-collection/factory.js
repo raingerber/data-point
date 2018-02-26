@@ -3,9 +3,7 @@ const createReducer = require('../../reducer-types').create
 const createBaseEntity = require('../base-entity').create
 const reducerHelpers = require('../../reducer-types/reducer-helpers')
 const { validateModifiers } = require('../validate-modifiers')
-const {
-  getTypeCheckSourceWithDefault
-} = require('../../helpers/type-check-helpers')
+const { getTypeCheckSource } = require('../../helpers/type-check-helpers')
 
 /**
  * @class
@@ -43,21 +41,14 @@ function createCompose (composeSpec) {
  */
 function create (spec, entityId) {
   validateModifiers(entityId, spec, modifierKeys.concat('compose'))
-  parseCompose.validateComposeModifiers(entityId, spec, modifierKeys)
 
-  const outputType = getTypeCheckSourceWithDefault(
-    'collection',
-    'array',
-    spec.outputType
-  )
+  const outputType = getTypeCheckSource('collection', 'array', spec.outputType)
   spec = Object.assign({}, spec, { outputType })
 
   const entity = createBaseEntity(EntityCollection, spec, entityId)
-
-  const composeSpec = parseCompose.parse(spec, modifierKeys)
-  parseCompose.validateCompose(entity.id, composeSpec, modifierKeys)
-  if (composeSpec.length) {
-    entity.compose = createCompose(composeSpec)
+  const compose = parseCompose.parse(entity.id, modifierKeys, spec)
+  if (compose.length) {
+    entity.compose = createCompose(compose)
   }
 
   return Object.freeze(entity)

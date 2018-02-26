@@ -6,9 +6,7 @@ const reducerHelpers = require('../../reducer-types/reducer-helpers')
 const parseCompose = require('../parse-compose')
 const createBaseEntity = require('../base-entity').create
 const { validateModifiers } = require('../validate-modifiers')
-const {
-  getTypeCheckSourceWithDefault
-} = require('../../helpers/type-check-helpers')
+const { getTypeCheckSource } = require('../../helpers/type-check-helpers')
 
 /**
  * @class
@@ -67,19 +65,13 @@ function createCompose (composeSpec) {
  */
 function create (spec, entityId) {
   validateModifiers(entityId, spec, modifierKeys.concat('compose'))
-  parseCompose.validateComposeModifiers(entityId, spec, modifierKeys)
 
-  const outputType = getTypeCheckSourceWithDefault(
-    'hash',
-    'object',
-    spec.outputType
-  )
+  const outputType = getTypeCheckSource('hash', 'object', spec.outputType)
   spec = Object.assign({}, spec, { outputType })
 
+  // TODO what's the difference between entity.id and entityId?
   const entity = createBaseEntity(EntityHash, spec, entityId)
-
-  const compose = parseCompose.parse(spec, modifierKeys)
-  parseCompose.validateCompose(entity.id, compose, modifierKeys)
+  const compose = parseCompose.parse(entity.id, modifierKeys, spec)
   if (compose.length) {
     entity.compose = createCompose(compose)
   }

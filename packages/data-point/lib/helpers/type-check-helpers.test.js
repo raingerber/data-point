@@ -28,26 +28,24 @@ describe('type-check-helpers#normalizeTypeCheckSource', () => {
   })
 })
 
-describe('type-check-helpers#getTypeCheckSourceWithDefault', () => {
+describe('type-check-helpers#getTypeCheckSource', () => {
   test('should return defaultType when no specType is provided', () => {
-    expect(helpers.getTypeCheckSourceWithDefault('hash', 'string')).toBe(
+    expect(helpers.getTypeCheckSource('hash', 'string')).toBe('string')
+  })
+  test('should return defaultType when specType === defaultType', () => {
+    expect(helpers.getTypeCheckSource('hash', 'string', 'string')).toBe(
       'string'
     )
   })
-  test('should return defaultType when specType === defaultType', () => {
-    expect(
-      helpers.getTypeCheckSourceWithDefault('hash', 'string', 'string')
-    ).toBe('string')
-  })
   test('should throw error for invalid specType', () => {
     expect(() =>
-      helpers.getTypeCheckSourceWithDefault('hash', 'string', 'number')
+      helpers.getTypeCheckSource('hash', 'string', 'number')
     ).toThrowErrorMatchingSnapshot()
   })
   test('should return array when specType is valid and !== defaultType', () => {
     const customTypeCheck = () => true
     expect(
-      helpers.getTypeCheckSourceWithDefault('hash', 'string', customTypeCheck)
+      helpers.getTypeCheckSource('hash', 'string', customTypeCheck)
     ).toEqual(['string', customTypeCheck])
   })
 })

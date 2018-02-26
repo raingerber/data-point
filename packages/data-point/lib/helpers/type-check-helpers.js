@@ -30,7 +30,7 @@ module.exports.normalizeTypeCheckSource = normalizeTypeCheckSource
  * @throws if specType !== defaultType but it's a key in the modifiers object
  * @return {*}
  */
-function getTypeCheckSourceWithDefault (entityType, defaultType, specType) {
+function getTypeCheckSource (entityType, defaultType, specType) {
   if (!specType || specType === defaultType) {
     return defaultType
   }
@@ -44,4 +44,4 @@ function getTypeCheckSourceWithDefault (entityType, defaultType, specType) {
   return [defaultType, specType]
 }
 
-module.exports.getTypeCheckSourceWithDefault = getTypeCheckSourceWithDefault
+module.exports.getTypeCheckSource = getTypeCheckSource

@@ -84,7 +84,7 @@ module.exports.create = createReducer
  * @return {Object}
  */
 function createDebug (source) {
-  const tree = new Map()
+  const tree = new WeakMap()
   const create = (source, options) => {
     options = utils.assign(options, { create })
     const reducer = createReducer(source, options)

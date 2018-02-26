@@ -58,7 +58,6 @@ function getProps (createReducer, source, stack = [], props = newProps()) {
       continue
     }
 
-    // TODO do not add a mapping for constants
     const reducer = createReducer(value)
     if (reducer.type === 'ReducerConstant') {
       _.set(props.constants, path, reducer.value)
