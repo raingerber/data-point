@@ -3,10 +3,10 @@
  * @param {Function} resolveReducer
  * @param {Accumulator} accumulator
  * @param {ReducerPath} reducer
- * @returns {Promise}
+ * @return {*}
  */
 function resolve (manager, resolveReducer, accumulator, reducer) {
-  return Promise.resolve(reducer.body(accumulator))
+  return reducer.body(accumulator)
 }
 
 module.exports.resolve = resolve

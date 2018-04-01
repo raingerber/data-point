@@ -15,6 +15,18 @@ function resolve (manager, resolveReducer, accumulator, reducerList) {
     return Promise.resolve(undefined)
   }
 
+  // console.log(reducerList)
+  // console.log('list:', !!reducerList.__sync__)
+  if (reducerList.__sync__) {
+    return reducers.reduce(
+      (value, reducer) => {
+        const itemContext = utils.set(accumulator, 'value', value)
+        return resolveReducer(manager, itemContext, reducer)
+      },
+      accumulator.value
+    )
+  }
+
   const result = Promise.reduce(
     reducers,
     (value, reducer) => {

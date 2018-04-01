@@ -76,9 +76,9 @@ module.exports.getProps = getProps
  * @return {Function}
  */
 function getSourceFunction (source) {
-  const fn = () => _.cloneDeep(source)
-  Object.defineProperty(fn, 'name', { value: 'source' })
-  return fn
+  return function source () {
+    return _.cloneDeep(source)
+  }
 }
 
 module.exports.getSourceFunction = getSourceFunction
@@ -94,6 +94,10 @@ function create (createReducer, source = {}) {
   const reducer = new ReducerObject()
   reducer.source = getSourceFunction(props.constants)
   reducer.reducers = props.reducers
+  // console.log(props.reducers)
+  if (props.reducers.every(({ reducer }) => reducer.__sync__)) {
+    reducer.__sync__ = true
+  }
 
   return reducer
 }

@@ -15,6 +15,7 @@ function ReducerPath () {
   this.name = ''
   this.body = undefined
   this.asCollection = false
+  this.__sync__ = true
 }
 
 module.exports.Constructor = ReducerPath

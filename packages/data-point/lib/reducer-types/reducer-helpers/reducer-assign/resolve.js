@@ -7,7 +7,7 @@
  */
 function resolve (manager, resolveReducer, accumulator, reducerAssign) {
   const reducer = reducerAssign.reducer
-  return resolveReducer(manager, accumulator, reducer).then(value => {
+  return resolveReducer(manager, accumulator, reducer, true).then(value => {
     return Object.assign({}, accumulator.value, value)
   })
 }

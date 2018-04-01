@@ -8,6 +8,7 @@ const Promise = require('bluebird')
  * @returns {Promise}
  */
 function resolve (manager, resolveReducer, accumulator, reducer) {
+  // return reducer.body(accumulator.value, accumulator)
   return Promise.try(() => reducer.body(accumulator.value, accumulator))
 }
 

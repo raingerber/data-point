@@ -78,11 +78,19 @@ module.exports.parse = parse
  * @return {reducer}
  */
 function create (createReducer, source) {
+  let sync = true
   const tokens = parse(source)
-  const reducers = tokens.map(token => createReducer(token))
+  const reducers = tokens.map(token => {
+    const reducer = createReducer(token)
+    sync = !!reducer.__sync__ && sync
+    return reducer
+  })
 
   const reducer = new ReducerList()
   reducer.reducers = reducers
+  if (sync) {
+    reducer.__sync__ = sync
+  }
 
   return reducer
 }

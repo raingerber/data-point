@@ -1,5 +1,3 @@
-const Promise = require('bluebird')
-
 const ReducerEntity = require('./reducer-entity')
 const ReducerFunction = require('./reducer-function')
 const ReducerList = require('./reducer-list')
@@ -33,11 +31,21 @@ module.exports.hasDefault = hasDefault
  */
 function getResolveFunction (reducer) {
   const reducerType = reducers[reducer.type]
-  if (reducerType) {
-    return reducerType.resolve
+  if (!reducerType) {
+    throw new Error(`Reducer type '${reducer.type}' was not recognized`)
   }
 
-  throw new Error(`Reducer type '${reducer.type}' was not recognized`)
+  return reducerType.resolve
+}
+
+/**
+ * @param {Accumulator} accumulator
+ * @return {Object}
+ */
+function thenable (accumulator) {
+  return {
+    then: cb => cb(accumulator)
+  }
 }
 
 /**
@@ -47,12 +55,12 @@ function getResolveFunction (reducer) {
  * @param {Reducer} reducer
  * @returns {Promise}
  */
-function resolveReducer (manager, accumulator, reducer) {
+function resolveReducer (manager, accumulator, reducer, chain) {
   // this conditional is here because BaseEntity#resolve
   // does not check that lifecycle methods are defined
   // before trying to resolve them
   if (!reducer) {
-    return Promise.resolve(accumulator.value)
+    return thenable(accumulator.value)
   }
 
   const resolve = getResolveFunction(reducer)
@@ -61,10 +69,20 @@ function resolveReducer (manager, accumulator, reducer) {
   if (hasDefault(reducer)) {
     const _default = reducer[DEFAULT_VALUE].value
     const resolveDefault = reducers.ReducerDefault.resolve
+    if (reducer.__sync__) {
+      return chain
+        ? thenable(resolveDefault(result, _default))
+        : resolveDefault(result, _default)
+      // return thenable(resolveDefault(result, _default))
+      // return resolveDefault(result, _default)
+    }
+
     return result.then(value => resolveDefault(value, _default))
   }
 
-  return result
+  return chain && reducer.__sync__ ? thenable(result) : result
+  // return reducer.__sync__ ? thenable(result) : result
+  // return result
 }
 
 module.exports.resolve = resolveReducer

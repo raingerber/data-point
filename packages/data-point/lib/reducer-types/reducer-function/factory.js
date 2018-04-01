@@ -16,6 +16,7 @@ module.exports.type = REDUCER_FUNCTION
 function ReducerFunction () {
   this.type = REDUCER_FUNCTION
   this.body = undefined
+  // this.__sync__ = true
 }
 
 module.exports.Constructor = ReducerFunction

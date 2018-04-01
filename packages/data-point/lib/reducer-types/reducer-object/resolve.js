@@ -11,7 +11,15 @@ const set = require('lodash/set')
 function resolve (manager, resolveReducer, accumulator, reducer) {
   const result = reducer.source()
   if (reducer.reducers.length === 0) {
-    return Promise.resolve(result)
+    return result
+  }
+
+  // console.log('obj:', !!reducer.__sync__)
+  if (reducer.__sync__) {
+    return reducer.reducers.reduce((acc, { reducer, path }) => {
+      const value = resolveReducer(manager, accumulator, reducer)
+      return set(acc, path, value)
+    }, result)
   }
 
   return Promise.map(reducer.reducers, ({ reducer, path }) => {
