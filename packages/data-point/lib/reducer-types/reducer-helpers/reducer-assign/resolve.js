@@ -7,7 +7,12 @@
  */
 function resolve (manager, resolveReducer, accumulator, reducerAssign) {
   const reducer = reducerAssign.reducer
-  return resolveReducer(manager, accumulator, reducer, true).then(value => {
+  if (reducer.__sync__) {
+    const value = resolveReducer(manager, accumulator, reducer)
+    return Object.assign({}, accumulator.value, value)
+  }
+
+  return resolveReducer(manager, accumulator, reducer).then(value => {
     return Object.assign({}, accumulator.value, value)
   })
 }

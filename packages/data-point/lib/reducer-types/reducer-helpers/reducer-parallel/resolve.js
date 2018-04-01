@@ -1,4 +1,5 @@
-const Promise = require('bluebird')
+const { then } = require('../utils/then')
+const { map } = require('../utils/array-functions')
 
 /**
  * @param {Object} manager
@@ -8,9 +9,11 @@ const Promise = require('bluebird')
  * @returns {Promise}
  */
 function resolve (manager, resolveReducer, accumulator, reducerParallel) {
-  return Promise.map(reducerParallel.reducers, reducer => {
+  const callback = then(reducerParallel.__sync__, reducer => {
     return resolveReducer(manager, accumulator, reducer)
   })
+
+  return map(reducerParallel, callback, reducerParallel.reducers)
 }
 
 module.exports.resolve = resolve

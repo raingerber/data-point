@@ -14,6 +14,7 @@ module.exports.name = HELPER_NAME
 function ReducerConstant () {
   this.type = REDUCER_CONSTANT
   this.value = undefined
+  this.__sync__ = true
 }
 
 module.exports.Constructor = ReducerConstant

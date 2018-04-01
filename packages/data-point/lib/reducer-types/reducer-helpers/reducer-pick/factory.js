@@ -14,6 +14,7 @@ module.exports.name = HELPER_NAME
 function ReducerPick () {
   this.type = REDUCER_PICK
   this.keys = undefined
+  this.__sync__ = true
 }
 
 module.exports.ReducerPick = ReducerPick

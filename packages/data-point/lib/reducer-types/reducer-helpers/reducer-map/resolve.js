@@ -1,5 +1,6 @@
-const Promise = require('bluebird')
 const utils = require('../../../utils')
+const { then } = require('../utils/then')
+const { map } = require('../utils/array-functions')
 
 /**
  * @param {Object} manager
@@ -10,10 +11,12 @@ const utils = require('../../../utils')
  */
 function resolve (manager, resolveReducer, accumulator, reducerMap) {
   const reducer = reducerMap.reducer
-  return Promise.map(accumulator.value, itemValue => {
+  const callback = then(reducer.__sync__, itemValue => {
     const itemContext = utils.set(accumulator, 'value', itemValue)
     return resolveReducer(manager, itemContext, reducer)
   })
+
+  return map(reducer, callback, accumulator.value)
 }
 
 module.exports.resolve = resolve

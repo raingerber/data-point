@@ -20,7 +20,7 @@ function getMatchingCaseStatement (caseStatements, acc, resolveReducer) {
         return Promise.reject(err)
       }
 
-      return resolveReducer(acc, statement.case).then(value => {
+      return resolveReducer.thenable(acc, statement.case).then(value => {
         return value ? statement : false
       })
     },

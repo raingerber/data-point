@@ -26,6 +26,10 @@ module.exports.Constructor = ReducerMap
 function create (createReducer, source) {
   const reducer = new ReducerMap()
   reducer.reducer = createReducer(source)
+  if (reducer.reducer.__sync__) {
+    reducer.__sync__ = true
+  }
+
   return reducer
 }
 

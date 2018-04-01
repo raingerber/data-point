@@ -26,6 +26,10 @@ module.exports.Constructor = ReducerAssign
 function create (createReducer, source) {
   const reducer = new ReducerAssign()
   reducer.reducer = createReducer(source)
+  if (reducer.reducer.__sync__) {
+    reducer.__sync__ = true
+  }
+
   return reducer
 }
 

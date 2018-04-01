@@ -55,7 +55,7 @@ function thenable (accumulator) {
  * @param {Reducer} reducer
  * @returns {Promise}
  */
-function resolveReducer (manager, accumulator, reducer, chain) {
+function resolveReducer (manager, accumulator, reducer) {
   // this conditional is here because BaseEntity#resolve
   // does not check that lifecycle methods are defined
   // before trying to resolve them
@@ -70,19 +70,18 @@ function resolveReducer (manager, accumulator, reducer, chain) {
     const _default = reducer[DEFAULT_VALUE].value
     const resolveDefault = reducers.ReducerDefault.resolve
     if (reducer.__sync__) {
-      return chain
-        ? thenable(resolveDefault(result, _default))
-        : resolveDefault(result, _default)
-      // return thenable(resolveDefault(result, _default))
-      // return resolveDefault(result, _default)
+      return resolveDefault(result, _default)
     }
 
     return result.then(value => resolveDefault(value, _default))
   }
 
-  return chain && reducer.__sync__ ? thenable(result) : result
-  // return reducer.__sync__ ? thenable(result) : result
-  // return result
+  return result
+}
+
+resolveReducer.thenable = (manager, accumulator, reducer) => {
+  const result = resolveReducer(manager, accumulator, reducer)
+  return reducer.__sync__ ? thenable(result) : result
 }
 
 module.exports.resolve = resolveReducer

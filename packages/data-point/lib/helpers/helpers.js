@@ -5,6 +5,7 @@ const AccumulatorFactory = require('../accumulator/factory')
 
 const { stubFactories } = require('../reducer-types/reducer-helpers')
 
+// TODO use the names here?
 module.exports.helpers = {
   assign: stubFactories.assign,
   constant: stubFactories.constant,
@@ -14,7 +15,8 @@ module.exports.helpers = {
   omit: stubFactories.omit,
   parallel: stubFactories.parallel,
   pick: stubFactories.pick,
-  withDefault: stubFactories.withDefault
+  withDefault: stubFactories.withDefault,
+  sync: stubFactories.sync
 }
 
 module.exports.entityFactories = require('../entity-types').factories

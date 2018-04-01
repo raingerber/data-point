@@ -29,6 +29,10 @@ function create (createReducer, source) {
   const reducer = new ReducerParallel()
   reducer.reducers = reducers
 
+  if (reducers.every(r => r.__sync__)) {
+    reducer.__sync__ = true
+  }
+
   return reducer
 }
 

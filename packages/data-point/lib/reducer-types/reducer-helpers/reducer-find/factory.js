@@ -26,6 +26,10 @@ module.exports.Constructor = ReducerFind
 function create (createReducer, source) {
   const reducer = new ReducerFind()
   reducer.reducer = createReducer(source)
+  if (reducer.reducer.__sync__) {
+    reducer.__sync__ = true
+  }
+
   return reducer
 }
 

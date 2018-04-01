@@ -26,6 +26,10 @@ module.exports.Constructor = ReducerFilter
 function create (createReducer, source) {
   const reducer = new ReducerFilter()
   reducer.reducer = createReducer(source)
+  if (reducer.reducer.__sync__) {
+    reducer.__sync__ = true
+  }
+
   return reducer
 }
 

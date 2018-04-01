@@ -1,4 +1,3 @@
-const Promise = require('bluebird')
 const pick = require('lodash/pick')
 
 /**
@@ -6,10 +5,10 @@ const pick = require('lodash/pick')
  * @param {Function} resolveReducer
  * @param {Accumulator} accumulator
  * @param {ReducerPick} reducerPick
- * @returns {Promise}
+ * @returns {Object}
  */
 function resolve (manager, resolveReducer, accumulator, reducerPick) {
-  return Promise.resolve(pick(accumulator.value, reducerPick.keys))
+  return pick(accumulator.value, reducerPick.keys)
 }
 
 module.exports.resolve = resolve

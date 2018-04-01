@@ -7,7 +7,7 @@ const utils = require('../../utils')
  */
 function resolve (accumulator, resolveReducer) {
   const entity = accumulator.reducer.spec
-  return resolveReducer(accumulator, entity.value).then(value => {
+  return resolveReducer.thenable(accumulator, entity.value).then(value => {
     const acc = utils.set(accumulator, 'value', value)
     return resolveReducer(acc, entity.compose)
   })

@@ -1,4 +1,6 @@
-const _ = require('lodash')
+const isPlainObject = require('lodash/isPlainObject')
+
+// const constant = require('../reducer-helpers/constant').create
 
 const REDUCER_OBJECT = 'ReducerObject'
 
@@ -24,7 +26,7 @@ module.exports.Constructor = ReducerObject
  * @returns {boolean}
  */
 function isType (source) {
-  return _.isPlainObject(source)
+  return isPlainObject(source)
 }
 
 module.exports.isType = isType
@@ -32,38 +34,34 @@ module.exports.isType = isType
 /**
  * @return {Object}
  */
-function newProps () {
-  return {
-    constants: {},
-    reducers: []
-  }
-}
+// function newProps () {
+//   return {
+//     constants: [],
+//     reducers: []
+//   }
+// }
 
-module.exports.newProps = newProps
+// module.exports.newProps = newProps
 
 /**
  * @param {Function} createReducer
  * @param {Object} source
  * @param {Array} stack
- * @param {Object} props
+ * @param {Array} props
  * @returns {Array}
  */
-function getProps (createReducer, source, stack = [], props = newProps()) {
+function getProps (createReducer, source, stack = [], props = []) {
   for (let key of Object.keys(source)) {
     const path = stack.concat(key)
     const value = source[key]
-    if (_.isPlainObject(value)) {
+    if (isPlainObject(value)) {
       // NOTE: recursive call
       getProps(createReducer, value, path, props)
       continue
     }
 
     const reducer = createReducer(value)
-    if (reducer.type === 'ReducerConstant') {
-      _.set(props.constants, path, reducer.value)
-    } else {
-      props.reducers.push({ path, reducer })
-    }
+    props.push({ path, reducer })
   }
 
   return props
@@ -75,13 +73,13 @@ module.exports.getProps = getProps
  * @param {Object} source
  * @return {Function}
  */
-function getSourceFunction (source) {
-  return function source () {
-    return _.cloneDeep(source)
-  }
-}
+// function getSourceFunction (source) {
+//   return function source () {
+//     return _.cloneDeep(source)
+//   }
+// }
 
-module.exports.getSourceFunction = getSourceFunction
+// module.exports.getSourceFunction = getSourceFunction
 
 /**
  * @param {Function} createReducer
@@ -89,13 +87,12 @@ module.exports.getSourceFunction = getSourceFunction
  * @returns {reducer}
  */
 function create (createReducer, source = {}) {
-  const props = getProps(createReducer, source)
+  const reducers = getProps(createReducer, source)
 
   const reducer = new ReducerObject()
-  reducer.source = getSourceFunction(props.constants)
-  reducer.reducers = props.reducers
-  // console.log(props.reducers)
-  if (props.reducers.every(({ reducer }) => reducer.__sync__)) {
+  // reducer.source = getSourceFunction(props.constants)
+  reducer.reducers = reducers
+  if (reducers.every(({ reducer }) => reducer.__sync__)) {
     reducer.__sync__ = true
   }
 

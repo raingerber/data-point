@@ -14,6 +14,7 @@ module.exports.name = HELPER_NAME
 function ReducerOmit () {
   this.type = REDUCER_OMIT
   this.keys = undefined
+  this.__sync__ = true
 }
 
 module.exports.Constructor = ReducerOmit

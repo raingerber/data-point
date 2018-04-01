@@ -78,7 +78,8 @@ function createReducer (source, options = {}) {
     reducer[DEFAULT_VALUE] = { value: options.default }
   }
 
-  return Object.freeze(reducer)
+  return reducer
+  // return Object.freeze(reducer)
 }
 
 module.exports.create = createReducer

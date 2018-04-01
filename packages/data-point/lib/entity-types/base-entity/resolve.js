@@ -19,7 +19,7 @@ function resolveErrorReducers (manager, error, accumulator, resolveReducer) {
   }
 
   const errorAccumulator = utils.set(accumulator, 'value', error)
-  return resolveReducer(manager, errorAccumulator, errorReducer)
+  return resolveReducer(manager, errorAccumulator, errorReducer, true)
 }
 
 module.exports.resolveErrorReducers = resolveErrorReducers

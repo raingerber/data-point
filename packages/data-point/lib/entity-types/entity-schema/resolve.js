@@ -31,7 +31,7 @@ module.exports.validateContext = validateContext
  */
 function resolve (accumulator, resolveReducer) {
   const value = accumulator.reducer.spec.value
-  return resolveReducer(accumulator, value).then(value => {
+  return resolveReducer.thenable(accumulator, value).then(value => {
     validateContext(utils.set(accumulator, 'value', value))
     return value
   })

@@ -42,7 +42,7 @@ module.exports.getRequestOptions = getRequestOptions
 function resolveOptions (accumulator, resolveReducer) {
   accumulator = resolveUrl(accumulator)
   const specOptions = accumulator.reducer.spec.options
-  return resolveReducer(accumulator, specOptions).then(value => {
+  return resolveReducer.thenable(accumulator, specOptions).then(value => {
     const options = getRequestOptions(accumulator.url, value)
     return utils.assign(accumulator, { options })
   })
@@ -138,7 +138,7 @@ module.exports.resolveRequest = resolveRequest
  */
 function resolve (acc, resolveReducer) {
   const entity = acc.reducer.spec
-  return resolveReducer(acc, entity.value)
+  return resolveReducer(acc, entity.value, true)
     .then(value => {
       return resolveOptions(utils.set(acc, 'value', value), resolveReducer)
     })

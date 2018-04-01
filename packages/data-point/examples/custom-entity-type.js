@@ -30,7 +30,7 @@ function resolve (accumulator, resolveReducer) {
   const spec = accumulator.reducer.spec
   // resolve 'spec.value' reducer
   // against accumulator
-  return resolveReducer(accumulator, spec.value).then(result => {
+  return resolveReducer.thenable(accumulator, spec.value).then(result => {
     // execute lodash template against
     // accumulator value
     const value = spec.template(result)

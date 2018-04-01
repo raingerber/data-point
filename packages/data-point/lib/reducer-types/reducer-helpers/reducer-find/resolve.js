@@ -16,6 +16,14 @@ function resolve (manager, resolveReducer, accumulator, reducerFind) {
   }
 
   const reducer = reducerFind.reducer
+  if (reducerFind.__sync__) {
+    return accumulator.value.find(itemValue => {
+      const itemContext = utils.set(accumulator, 'value', itemValue)
+      const value = resolveReducer(manager, itemContext, reducer)
+      return reducerPredicateIsTruthy(reducer, value)
+    })
+  }
+
   return Promise.reduce(
     accumulator.value,
     (result, itemValue) => {

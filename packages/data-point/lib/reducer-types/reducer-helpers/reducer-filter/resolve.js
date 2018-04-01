@@ -1,6 +1,7 @@
-const Promise = require('bluebird')
-
+// TODO why do we have multiple utils directories
 const utils = require('../../../utils')
+const { then } = require('../utils/then')
+const { filter } = require('../utils/array-functions')
 const { reducerPredicateIsTruthy } = require('../utils')
 
 /**
@@ -12,12 +13,16 @@ const { reducerPredicateIsTruthy } = require('../utils')
  */
 function resolve (manager, resolveReducer, accumulator, reducerFilter) {
   const reducer = reducerFilter.reducer
-  return Promise.filter(accumulator.value, itemValue => {
-    const itemContext = utils.set(accumulator, 'value', itemValue)
-    return resolveReducer(manager, itemContext, reducer).then(value => {
-      return reducerPredicateIsTruthy(reducer, value)
-    })
+  const callback = then(reducer.__sync__, value => {
+    return reducerPredicateIsTruthy(reducer, value)
   })
+
+  const predicate = itemValue => {
+    const itemContext = utils.set(accumulator, 'value', itemValue)
+    return callback(resolveReducer(manager, itemContext, reducer))
+  }
+
+  return filter(reducer, predicate, accumulator.value)
 }
 
 module.exports.resolve = resolve
